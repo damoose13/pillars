@@ -5,6 +5,18 @@ struct RootView: View {
     @Environment(AppState.self) private var appState
 
     var body: some View {
+        #if DEBUG
+        if let route = AppLaunch.captureRoute {
+            CaptureRoot(route: route)
+        } else {
+            shell
+        }
+        #else
+        shell
+        #endif
+    }
+
+    private var shell: some View {
         ZStack {
             if appState.hasCompletedOnboarding {
                 MainTabView()

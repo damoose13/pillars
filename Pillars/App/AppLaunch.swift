@@ -18,6 +18,17 @@ enum AppLaunch {
         #endif
     }
 
+    /// A specific screen to render directly (for CI page captures). DEBUG-only.
+    static var captureRoute: String? {
+        #if DEBUG
+        guard let idx = CommandLine.arguments.firstIndex(of: "--route"),
+              idx + 1 < CommandLine.arguments.count else { return nil }
+        return CommandLine.arguments[idx + 1]
+        #else
+        return nil
+        #endif
+    }
+
     static var initialTab: AppTab {
         guard let idx = CommandLine.arguments.firstIndex(of: "--screen"),
               idx + 1 < CommandLine.arguments.count else { return .today }

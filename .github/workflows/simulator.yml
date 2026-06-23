@@ -68,13 +68,26 @@ jobs:
             xcrun simctl io "$UDID" screenshot "screenshots/$1.png"
             echo "captured $1"
           }
-          # Welcome must be first — before any --uitest launch flips onboarding state.
-          shoot 01_welcome ""
-          shoot 02_today    "--uitest --screen today"
-          shoot 03_map      "--uitest --screen map"
-          shoot 04_moves    "--uitest --screen moves"
-          shoot 05_circle   "--uitest --screen circle"
-          shoot 06_settings "--uitest --screen settings"
+          # Every page, in roughly app-flow order. Tabs use --screen (tab bar visible);
+          # deeper pages use --route (rendered directly via CaptureRoot).
+          shoot 01_welcome        "--uitest --route welcome"
+          shoot 02_philosophy     "--uitest --route philosophy"
+          shoot 03_baseline       "--uitest --route baseline"
+          shoot 04_today          "--uitest --screen today"
+          shoot 05_daily_checkin  "--uitest --route checkin"
+          shoot 06_weekly_review  "--uitest --route weekly"
+          shoot 07_history        "--uitest --route history"
+          shoot 08_pillar_map     "--uitest --screen map"
+          shoot 09_pillar_detail  "--uitest --route pillardetail"
+          shoot 10_moves          "--uitest --screen moves"
+          shoot 11_ritual_library "--uitest --route rituals"
+          shoot 12_ritual_detail  "--uitest --route ritualdetail"
+          shoot 13_circle         "--uitest --screen circle"
+          shoot 14_privacy        "--uitest --route privacy"
+          shoot 15_share_win      "--uitest --route sharedwin"
+          shoot 16_shared_reset   "--uitest --route sharedreset"
+          shoot 17_paywall        "--uitest --route paywall"
+          shoot 18_settings       "--uitest --screen settings"
           ls -la screenshots
 
       - name: Upload artifacts
