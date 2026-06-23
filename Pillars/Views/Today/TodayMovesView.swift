@@ -1,0 +1,147 @@
+import SwiftUI
+import SwiftData
+
+/// The full list of today's restoring actions, with completion tracking. Same three moves
+/// the dashboard surfaces — here with room to breathe and a quiet sense of progress.
+struct TodayMovesView: View {
+    @Environment(\.modelContext) private var context
+    @Environment(AppState.self) private var appState
+
+    @Query(sort: \DailyCheckIn.date, order: .reverse) private var checkIns: [DailyCheckIn]
+    @Query private var actions: [PillarAction]
+
+    private var result: PillarScoreResult? { PillarScoringEngine.result(from: checkIns) }
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: PillarsSpacing.xl) {
+                header
+
+                if let result {
+                    let recs = RecommendationEngine.recommendations(for: result)
+                    progressCard(recs)
+                    VStack(spacing: PillarsSpacing.m) {
+                        ForEach(recs) { rec in
+                            PillarMoveCard(
+                                recommendation: rec,
+                                isCompleted: isDone(rec),
+                                onToggle: { toggle(rec) }
+                            )
+                        }
+                    }
+                    footerNote
+                } else {
+                    emptyState
+                }
+            }
+            .frame(maxWidth: 600)
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, PillarsSpacing.screenH)
+            .padding(.top, PillarsSpacing.xl)
+            .padding(.bottom, PillarsSpacing.xxl)
+        }
+        .scrollIndicators(.hidden)
+        .pillarsBackground()
+    }
+
+    private var header: some View {
+        VStack(alignment: .leading, spacing: PillarsSpacing.s) {
+            Text("Today")
+                .pillarsOverline(PillarsColors.gold.opacity(0.9))
+            Text("Your three moves.")
+                .font(PillarsTypography.display)
+                .foregroundStyle(PillarsColors.primaryText)
+            Text("You don't need to fix everything. Start with one — the pillar that needs support first — and let the rest follow.")
+                .font(PillarsTypography.body)
+                .foregroundStyle(PillarsColors.secondaryText)
+                .lineSpacing(3)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    private func progressCard(_ recs: [PillarRecommendation]) -> some View {
+        let done = recs.filter { isDone($0) }.count
+        return PillarGlassCard(padding: PillarsSpacing.m) {
+            HStack(spacing: PillarsSpacing.m) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("\(done) of \(recs.count) restored")
+                        .font(PillarsTypography.headline)
+                        .foregroundStyle(PillarsColors.primaryText)
+                    Text(done == recs.count ? "A complete, quiet day. Well held." : "One small action is enough to shift the day.")
+                        .font(PillarsTypography.caption)
+                        .foregroundStyle(PillarsColors.secondaryText)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer(minLength: 0)
+                ZStack {
+                    Circle().stroke(Color.white.opacity(0.08), lineWidth: 5)
+                    Circle()
+                        .trim(from: 0, to: recs.isEmpty ? 0 : Double(done) / Double(recs.count))
+                        .stroke(PillarsColors.gold, style: StrokeStyle(lineWidth: 5, lineCap: .round))
+                        .rotationEffect(.degrees(-90))
+                    Image(systemName: done == recs.count && !recs.isEmpty ? "checkmark" : "circle.grid.cross")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(PillarsColors.gold)
+                }
+                .frame(width: 46, height: 46)
+                .animation(.easeInOut, value: done)
+            }
+        }
+    }
+
+    private var footerNote: some View {
+        Text("Moves refresh with each check-in. Completing one won't change your scores — it changes your day.")
+            .font(PillarsTypography.caption)
+            .foregroundStyle(PillarsColors.tertiaryText)
+            .multilineTextAlignment(.center)
+            .frame(maxWidth: .infinity)
+            .padding(.top, PillarsSpacing.xs)
+    }
+
+    private var emptyState: some View {
+        PillarGlassCard(padding: PillarsSpacing.xl) {
+            VStack(spacing: PillarsSpacing.m) {
+                Image(systemName: "checklist")
+                    .font(.system(size: 36, weight: .light))
+                    .foregroundStyle(PillarsColors.gold)
+                Text("No moves yet")
+                    .font(PillarsTypography.title)
+                    .foregroundStyle(PillarsColors.primaryText)
+                Text("Complete a check-in and Pillars will suggest a few small, restoring actions.")
+                    .font(PillarsTypography.body)
+                    .foregroundStyle(PillarsColors.secondaryText)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+                SecondaryButton(title: "Go to Today", icon: "arrow.right") { appState.selectedTab = .today }
+            }
+            .frame(maxWidth: .infinity)
+        }
+    }
+
+    private func isDone(_ rec: PillarRecommendation) -> Bool {
+        actions.contains { $0.matches(rec) && $0.isCompleted }
+    }
+
+    private func toggle(_ rec: PillarRecommendation) {
+        if let existing = actions.first(where: { $0.matches(rec) }) {
+            existing.isCompleted.toggle()
+            existing.completedAt = existing.isCompleted ? .now : nil
+        } else {
+            let action = PillarAction(
+                title: rec.title, subtitle: rec.subtitle, pillar: rec.pillar,
+                isCompleted: true, createdAt: .now, completedAt: .now
+            )
+            context.insert(action)
+        }
+        try? context.save()
+    }
+}
+
+#if DEBUG
+#Preview {
+    TodayMovesView()
+        .environment(AppState())
+        .modelContainer(PreviewData.container)
+        .preferredColorScheme(.dark)
+}
+#endif
