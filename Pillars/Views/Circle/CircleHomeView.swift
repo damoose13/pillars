@@ -5,6 +5,7 @@ import SwiftData
 /// privacy-safe Pulse, shared resets, and voluntary wins. Individual scores never appear.
 struct CircleHomeView: View {
     @Environment(\.modelContext) private var context
+    @Environment(EntitlementManager.self) private var entitlements
 
     @Query private var circles: [CircleGroup]
     @Query(sort: \CircleMember.joinedAt, order: .forward) private var members: [CircleMember]
@@ -15,6 +16,7 @@ struct CircleHomeView: View {
     @State private var showPrivacy = false
     @State private var showAddPeople = false
     @State private var showLeaveConfirm = false
+    @State private var showPaywall = false
 
     private var hasCircle: Bool { !circles.isEmpty }
 
@@ -33,8 +35,12 @@ struct CircleHomeView: View {
                 VStack(alignment: .leading, spacing: PillarsSpacing.xl) {
                     if hasCircle {
                         circleHeader
-                        CirclePulseView(pulse: pulse)
-                        actionsSection
+                        if entitlements.isEntitled(to: .circlePulse) {
+                            CirclePulseView(pulse: pulse)
+                            actionsSection
+                        } else {
+                            LockedFeatureCard(feature: .circlePulse) { showPaywall = true }
+                        }
                         winsSection
                         manageSection
                     } else {
@@ -54,6 +60,7 @@ struct CircleHomeView: View {
             .sheet(isPresented: $showComposer) { SharedWinComposerView() }
             .sheet(isPresented: $showPrivacy) { PrivacyExplainerView() }
             .sheet(isPresented: $showAddPeople) { AddPeopleSheet() }
+            .sheet(isPresented: $showPaywall) { PaywallView(highlightTier: .circlePass) }
             .confirmationDialog("Leave this Circle?", isPresented: $showLeaveConfirm, titleVisibility: .visible) {
                 Button("Leave Circle", role: .destructive) { leaveCircle() }
                 Button("Cancel", role: .cancel) {}
@@ -379,6 +386,7 @@ private struct AddPeopleSheet: View {
 #Preview {
     CircleHomeView()
         .environment(AppState())
+        .environment(EntitlementManager.preview([.circlePass]))
         .modelContainer(PreviewData.container)
         .preferredColorScheme(.dark)
 }

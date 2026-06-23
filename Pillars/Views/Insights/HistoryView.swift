@@ -4,11 +4,26 @@ import SwiftData
 /// A quiet ledger of past check-ins, newest first. Each row shows the day, its system
 /// score, and a compact strip of all eight pillars.
 struct HistoryView: View {
+    @Environment(EntitlementManager.self) private var entitlements
     @Query(sort: \DailyCheckIn.date, order: .reverse) private var checkIns: [DailyCheckIn]
+
+    @State private var showPaywall = false
+
+    /// Free tier sees the most recent week; Plus sees everything.
+    private let freeWindow = 7
 
     private var average: Int {
         guard !checkIns.isEmpty else { return 0 }
         return checkIns.reduce(0) { $0 + $1.systemScore } / checkIns.count
+    }
+
+    private var visibleCheckIns: [DailyCheckIn] {
+        if entitlements.isEntitled(to: .fullHistory) { return checkIns }
+        return Array(checkIns.prefix(freeWindow))
+    }
+
+    private var hiddenCount: Int {
+        max(0, checkIns.count - visibleCheckIns.count)
     }
 
     var body: some View {
@@ -21,9 +36,12 @@ struct HistoryView: View {
                 } else {
                     statsCard
                     VStack(spacing: PillarsSpacing.s) {
-                        ForEach(checkIns) { checkIn in
+                        ForEach(visibleCheckIns) { checkIn in
                             HistoryRow(checkIn: checkIn)
                         }
+                    }
+                    if hiddenCount > 0 {
+                        LockedFeatureCard(feature: .fullHistory) { showPaywall = true }
                     }
                 }
             }
@@ -38,6 +56,7 @@ struct HistoryView: View {
         .navigationTitle("History")
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(.hidden, for: .navigationBar)
+        .sheet(isPresented: $showPaywall) { PaywallView(highlightTier: .plus) }
     }
 
     private var header: some View {
@@ -158,6 +177,7 @@ private struct PillarMiniStrip: View {
         HistoryView()
     }
     .environment(AppState())
+    .environment(EntitlementManager())
     .modelContainer(PreviewData.container)
     .preferredColorScheme(.dark)
 }

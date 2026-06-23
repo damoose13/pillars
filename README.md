@@ -31,8 +31,24 @@ size and enforced in the engine — never in the view:
 Individual pillar scores are **never** exposed in Circle mode. There is no auth/backend yet —
 members are fabricated on‑device purely to exercise the privacy logic.
 
-Real backend (Supabase), HealthKit, and subscriptions (StoreKit 2) remain **deliberately
-deferred** to later versions.
+**v0.4 — Monetization (StoreKit 2, mock mode).** Real StoreKit 2 patterns with an offline
+**mock** fallback, so the whole flow is testable with no real product IDs. `EntitlementManager`
+gates a few features and `PaywallView` presents two plans:
+
+- **Pillars Plus** — full history, Weekly Review, advanced insights.
+- **Circle Pass** — Circle Pulse, shared resets, multiple Circles.
+
+The daily loop stays free. A **developer mock‑store** toggle in Settings flips entitlements so
+every gated state and the paywall are easy to preview. Product IDs are defined
+(`pillars.plus.monthly` / `.yearly`, `pillars.circle.monthly` / `.yearly`) but **not** wired to
+App Store Connect yet.
+
+**v0.3 — Backend (Supabase): documented, not wired.** A live backend needs an external SDK,
+which conflicts with the no‑dependency guardrail, so it's specified in
+[`BACKEND.md`](BACKEND.md) (schema, server‑side privacy enforcement, auth/invite, sync, and the
+swap‑in seam) and surfaced honestly as "Local only" in Settings → Sync.
+
+HealthKit remains **deliberately deferred**.
 
 ## The eight pillars
 

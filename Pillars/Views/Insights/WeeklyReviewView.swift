@@ -4,7 +4,10 @@ import SwiftData
 /// A weekly read of the past seven check-ins: average, movement, the strongest and
 /// weakest pillars, one quiet pattern, next week's focus, and three suggested actions.
 struct WeeklyReviewView: View {
+    @Environment(EntitlementManager.self) private var entitlements
     @Query(sort: \DailyCheckIn.date, order: .reverse) private var checkIns: [DailyCheckIn]
+
+    @State private var showPaywall = false
 
     private var review: WeeklyReview? { WeeklyReviewEngine.review(from: checkIns) }
 
@@ -12,7 +15,10 @@ struct WeeklyReviewView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: PillarsSpacing.xl) {
                 header
-                if let review {
+                if !entitlements.isEntitled(to: .weeklyReview) {
+                    LockedFeatureCard(feature: .weeklyReview) { showPaywall = true }
+                    if review != nil { previewTeaser }
+                } else if let review {
                     summaryCard(review)
                     highlightsRow(review)
                     patternCard(review)
@@ -34,6 +40,7 @@ struct WeeklyReviewView: View {
         .navigationTitle("Weekly Review")
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(.hidden, for: .navigationBar)
+        .sheet(isPresented: $showPaywall) { PaywallView(highlightTier: .plus) }
     }
 
     // MARK: Sections
@@ -47,6 +54,23 @@ struct WeeklyReviewView: View {
                 .foregroundStyle(PillarsColors.primaryText)
                 .lineSpacing(2)
         }
+    }
+
+    /// A blurred taste of the review shown beneath the lock, so the value is legible.
+    private var previewTeaser: some View {
+        PillarGlassCard {
+            VStack(alignment: .leading, spacing: PillarsSpacing.s) {
+                Text("What you'll see")
+                    .pillarsOverline()
+                Text("Your weekly average, strongest and weakest pillars, the one pattern worth noticing, and a focus for the week ahead.")
+                    .font(PillarsTypography.callout)
+                    .foregroundStyle(PillarsColors.secondaryText)
+                    .lineSpacing(1.5)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .blur(radius: 0.5)
+        .opacity(0.9)
     }
 
     private func summaryCard(_ review: WeeklyReview) -> some View {
@@ -264,6 +288,7 @@ private struct SuggestionCard: View {
         WeeklyReviewView()
     }
     .environment(AppState())
+    .environment(EntitlementManager.preview([.plus]))
     .modelContainer(PreviewData.container)
     .preferredColorScheme(.dark)
 }

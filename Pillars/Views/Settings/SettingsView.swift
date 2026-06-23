@@ -5,11 +5,13 @@ import SwiftData
 /// controls. Styled as glass sections to match the rest of the app rather than a stock form.
 struct SettingsView: View {
     @Environment(AppState.self) private var appState
+    @Environment(EntitlementManager.self) private var entitlements
     @Environment(\.modelContext) private var context
 
     @Query private var checkIns: [DailyCheckIn]
 
     @State private var showClearConfirm = false
+    @State private var showPaywall = false
 
     private var appVersion: String {
         let v = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.1.0"
@@ -30,9 +32,12 @@ struct SettingsView: View {
                         .foregroundStyle(PillarsColors.secondaryText)
                 }
 
+                planSection
                 purposeSection(appState: appState)
+                syncSection
                 privacySection
                 dataSection
+                developerSection
                 aboutSection
             }
             .frame(maxWidth: 600)
@@ -43,6 +48,7 @@ struct SettingsView: View {
         }
         .scrollIndicators(.hidden)
         .pillarsBackground()
+        .sheet(isPresented: $showPaywall) { PaywallView() }
         .confirmationDialog(
             "Clear all check-ins and moves?",
             isPresented: $showClearConfirm,
@@ -56,6 +62,77 @@ struct SettingsView: View {
     }
 
     // MARK: Sections
+
+    private var planSection: some View {
+        SettingsSection(title: "Plan", icon: "sparkles") {
+            VStack(alignment: .leading, spacing: PillarsSpacing.m) {
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(entitlements.planSummary)
+                            .font(PillarsTypography.headline)
+                            .foregroundStyle(PillarsColors.primaryText)
+                        Text(entitlements.ownedTiers.isEmpty
+                             ? "The daily loop is free, forever."
+                             : "Thank you for supporting Pillars.")
+                            .font(PillarsTypography.caption)
+                            .foregroundStyle(PillarsColors.secondaryText)
+                    }
+                    Spacer()
+                    if !entitlements.ownedTiers.isEmpty {
+                        Image(systemName: "checkmark.seal.fill").foregroundStyle(PillarsColors.positive)
+                    }
+                }
+                Button { showPaywall = true } label: {
+                    HStack(spacing: 6) {
+                        Text(entitlements.ownedTiers.isEmpty ? "See plans" : "Manage plans")
+                        Image(systemName: "arrow.right")
+                    }
+                    .font(PillarsTypography.callout.weight(.semibold))
+                    .foregroundStyle(PillarsColors.background)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 13)
+                    .background(Capsule().fill(PillarsColors.gold))
+                }
+                .buttonStyle(PressableButtonStyle())
+            }
+        }
+    }
+
+    private var syncSection: some View {
+        SettingsSection(title: "Sync", icon: "icloud") {
+            HStack(spacing: PillarsSpacing.m) {
+                Image(systemName: "iphone")
+                    .font(.system(size: 20))
+                    .foregroundStyle(PillarsColors.secondaryText)
+                    .frame(width: 36)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Local only")
+                        .font(PillarsTypography.headline)
+                        .foregroundStyle(PillarsColors.primaryText)
+                    Text("Everything lives on this device. Optional encrypted cloud sync and real Circle invites arrive with accounts in a later version.")
+                        .font(PillarsTypography.caption)
+                        .foregroundStyle(PillarsColors.secondaryText)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+        }
+    }
+
+    private var developerSection: some View {
+        SettingsSection(title: "Developer · mock store", icon: "hammer") {
+            VStack(alignment: .leading, spacing: PillarsSpacing.m) {
+                Text("No real products are configured, so purchases are simulated. Set entitlements here to preview gated features.")
+                    .font(PillarsTypography.caption)
+                    .foregroundStyle(PillarsColors.secondaryText)
+                    .fixedSize(horizontal: false, vertical: true)
+                FlowChips(
+                    options: ["Free", "Plus", "Circle Pass", "Everything"],
+                    isSelected: { isMockSelected($0) },
+                    onTap: { selectMock($0) }
+                )
+            }
+        }
+    }
 
     private func purposeSection(appState: AppState) -> some View {
         SettingsSection(title: "The eighth pillar", icon: "mountain.2.fill") {
@@ -146,6 +223,28 @@ struct SettingsView: View {
         }
     }
 
+    // MARK: Mock store helpers
+
+    private func isMockSelected(_ option: String) -> Bool {
+        switch option {
+        case "Free": return entitlements.ownedTiers.isEmpty
+        case "Plus": return entitlements.ownedTiers == [.plus]
+        case "Circle Pass": return entitlements.ownedTiers == [.circlePass]
+        case "Everything": return entitlements.ownedTiers == [.plus, .circlePass]
+        default: return false
+        }
+    }
+
+    private func selectMock(_ option: String) {
+        switch option {
+        case "Free": entitlements.setMockTiers([])
+        case "Plus": entitlements.setMockTiers([.plus])
+        case "Circle Pass": entitlements.setMockTiers([.circlePass])
+        case "Everything": entitlements.setMockTiers([.plus, .circlePass])
+        default: break
+        }
+    }
+
     // MARK: Purpose alias helpers
 
     private func isAliasSelected(_ option: String) -> Bool {
@@ -226,6 +325,7 @@ private struct FlowChips: View {
 #Preview {
     SettingsView()
         .environment(AppState())
+        .environment(EntitlementManager())
         .modelContainer(PreviewData.container)
         .preferredColorScheme(.dark)
 }

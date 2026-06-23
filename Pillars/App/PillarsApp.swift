@@ -5,6 +5,8 @@ import SwiftData
 struct PillarsApp: App {
     /// App-level, observable preferences/state.
     @State private var appState = AppState()
+    /// Subscription state & feature gating (StoreKit 2, with offline mock mode).
+    @State private var entitlements = EntitlementManager()
 
     /// Local-first SwiftData store. Circle models are registered now so the schema is
     /// stable, even though the Circle feature layer ships later.
@@ -28,8 +30,10 @@ struct PillarsApp: App {
         WindowGroup {
             RootView()
                 .environment(appState)
+                .environment(entitlements)
                 .tint(PillarsColors.gold)
                 .preferredColorScheme(.dark)
+                .task { await entitlements.start() }
         }
         .modelContainer(modelContainer)
     }

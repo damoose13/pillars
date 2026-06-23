@@ -306,6 +306,7 @@ private struct PillarHighlightCard: View {
 #Preview {
     TodayDashboardView()
         .environment(AppState())
+        .environment(EntitlementManager.preview([.plus, .circlePass]))
         .modelContainer(PreviewData.container)
         .preferredColorScheme(.dark)
 }
