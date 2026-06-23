@@ -124,7 +124,8 @@ struct PillarDetailView: View {
                     .font(PillarsTypography.headline)
                     .foregroundStyle(PillarsColors.primaryText)
                 HStack(alignment: .bottom, spacing: 10) {
-                    ForEach(Array(history.enumerated()), id: \.offset) { _, checkIn in
+                    ForEach(history.indices, id: \.self) { idx in
+                        let checkIn = history[idx]
                         let value = checkIn.score(for: pillar)
                         VStack(spacing: 8) {
                             RoundedRectangle(cornerRadius: 5, style: .continuous)
@@ -148,7 +149,8 @@ struct PillarDetailView: View {
                 Text("What helps")
                     .font(PillarsTypography.headline)
                     .foregroundStyle(PillarsColors.primaryText)
-                ForEach(Array(tips.enumerated()), id: \.offset) { _, tip in
+                ForEach(tips.indices, id: \.self) { idx in
+                    let tip = tips[idx]
                     HStack(alignment: .top, spacing: PillarsSpacing.s) {
                         Circle().fill(pillar.color).frame(width: 6, height: 6).padding(.top, 7)
                         Text(tip)

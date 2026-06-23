@@ -63,7 +63,8 @@ struct RitualDetailView: View {
                 Text("How it goes")
                     .font(PillarsTypography.headline)
                     .foregroundStyle(PillarsColors.primaryText)
-                ForEach(Array(ritual.steps.enumerated()), id: \.offset) { i, step in
+                ForEach(ritual.steps.indices, id: \.self) { i in
+                    let step = ritual.steps[i]
                     HStack(alignment: .top, spacing: PillarsSpacing.s) {
                         Text("\(i + 1)")
                             .font(.system(size: 12, weight: .bold))

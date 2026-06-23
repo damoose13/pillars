@@ -38,7 +38,11 @@ jobs:
             -destination 'generic/platform=iOS Simulator' \
             -derivedDataPath build \
             CODE_SIGNING_ALLOWED=NO \
-            build 2>&1 | tee build.log
+            build 2>&1 | tee build.log || true
+          echo "==================== compiler errors ===================="
+          grep -nE "error:" build.log | head -80 || echo "(no error: lines found)"
+          echo "========================================================="
+          if grep -q "BUILD FAILED" build.log; then echo "Build failed"; exit 65; fi
 
       - name: Boot a simulator
         run: |

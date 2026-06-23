@@ -197,7 +197,8 @@ struct SharedResetFlowView: View {
             if let r {
                 PillarGlassCard(highlight: true) {
                     VStack(alignment: .leading, spacing: PillarsSpacing.s) {
-                        ForEach(Array(r.steps.enumerated()), id: \.offset) { i, s in
+                        ForEach(r.steps.indices, id: \.self) { i in
+                            let s = r.steps[i]
                             HStack(alignment: .top, spacing: PillarsSpacing.s) {
                                 Text("\(i + 1)")
                                     .font(.system(size: 12, weight: .bold))

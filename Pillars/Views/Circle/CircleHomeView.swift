@@ -340,7 +340,8 @@ private struct AddPeopleSheet: View {
                         }
                     } else {
                         VStack(spacing: PillarsSpacing.s) {
-                            ForEach(Array(available.enumerated()), id: \.element) { index, name in
+                            ForEach(available.indices, id: \.self) { index in
+                                let name = available[index]
                                 Button { add(name: name, colorIndex: members.count + index) } label: {
                                     PillarGlassCard(padding: PillarsSpacing.m) {
                                         HStack(spacing: PillarsSpacing.m) {

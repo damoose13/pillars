@@ -26,7 +26,7 @@ struct PillarRadialMap: View {
                 }
 
                 // Axes.
-                ForEach(Array(pillars.enumerated()), id: \.element) { index, _ in
+                ForEach(pillars.indices, id: \.self) { index in
                     Path { p in
                         p.move(to: center)
                         p.addLine(to: vertex(index: index, value: Double(maxScore), center: center, radius: radius))
@@ -46,7 +46,8 @@ struct PillarRadialMap: View {
                     .stroke(PillarsColors.gold.opacity(0.75), style: StrokeStyle(lineWidth: 1.5, lineJoin: .round))
 
                 // Pillar nodes.
-                ForEach(Array(pillars.enumerated()), id: \.element) { index, pillar in
+                ForEach(pillars.indices, id: \.self) { index in
+                    let pillar = pillars[index]
                     let value = Double(scores[pillar] ?? 0)
                     Circle()
                         .fill(pillar.color)
@@ -57,7 +58,8 @@ struct PillarRadialMap: View {
 
                 // Axis labels.
                 if showLabels {
-                    ForEach(Array(pillars.enumerated()), id: \.element) { index, pillar in
+                    ForEach(pillars.indices, id: \.self) { index in
+                        let pillar = pillars[index]
                         PillarAxisLabel(pillar: pillar, score: scores[pillar] ?? 0)
                             .position(vertex(index: index, value: Double(maxScore) * 1.34, center: center, radius: radius))
                     }
