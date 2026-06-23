@@ -5,13 +5,15 @@ import SwiftUI
 struct TodayFoundationHeader: View {
     let result: PillarScoreResult
     var date: Date = .now
+    /// Whether the underlying check-in is from today (vs. the most recent prior day).
+    var isToday: Bool = true
 
     var body: some View {
         VStack(alignment: .leading, spacing: PillarsSpacing.s) {
-            Text(dateString)
+            Text(isToday ? dateString : "LAST CHECK-IN")
                 .pillarsOverline(PillarsColors.gold.opacity(0.9))
 
-            Text("Today's Foundation")
+            Text(isToday ? "Today's Foundation" : "Where you left off")
                 .font(PillarsTypography.display)
                 .foregroundStyle(PillarsColors.primaryText)
                 .lineLimit(2)

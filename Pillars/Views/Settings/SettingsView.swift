@@ -6,6 +6,7 @@ import SwiftData
 struct SettingsView: View {
     @Environment(AppState.self) private var appState
     @Environment(EntitlementManager.self) private var entitlements
+    @Environment(NotificationManager.self) private var notifications
     @Environment(\.modelContext) private var context
 
     @Query private var checkIns: [DailyCheckIn]
@@ -33,11 +34,14 @@ struct SettingsView: View {
                 }
 
                 planSection
+                remindersSection
                 purposeSection(appState: appState)
                 syncSection
                 privacySection
                 dataSection
+                #if DEBUG
                 developerSection
+                #endif
                 aboutSection
             }
             .frame(maxWidth: 600)
@@ -98,6 +102,50 @@ struct SettingsView: View {
         }
     }
 
+    private var remindersSection: some View {
+        SettingsSection(title: "Daily rhythm", icon: "bell") {
+            VStack(alignment: .leading, spacing: PillarsSpacing.m) {
+                Toggle(isOn: Binding(
+                    get: { notifications.reminderEnabled },
+                    set: { value in Task { await notifications.setEnabled(value) } }
+                )) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Check-in reminder")
+                            .font(PillarsTypography.headline)
+                            .foregroundStyle(PillarsColors.primaryText)
+                        Text("One gentle nudge a day. No badges, no streaks.")
+                            .font(PillarsTypography.caption)
+                            .foregroundStyle(PillarsColors.secondaryText)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+                .tint(PillarsColors.gold)
+
+                if notifications.reminderEnabled {
+                    Divider().overlay(PillarsColors.cardBorder)
+                    DatePicker(
+                        "Reminder time",
+                        selection: Binding(
+                            get: { notifications.reminderTime },
+                            set: { value in Task { await notifications.updateTime(value) } }
+                        ),
+                        displayedComponents: .hourAndMinute
+                    )
+                    .font(PillarsTypography.body)
+                    .foregroundStyle(PillarsColors.primaryText)
+                    .tint(PillarsColors.gold)
+                }
+
+                if notifications.permissionDenied {
+                    Text("Notifications are off for Pillars. Enable them in iOS Settings to get your reminder.")
+                        .font(PillarsTypography.caption)
+                        .foregroundStyle(PillarsColors.caution)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+        }
+    }
+
     private var syncSection: some View {
         SettingsSection(title: "Sync", icon: "icloud") {
             HStack(spacing: PillarsSpacing.m) {
@@ -118,6 +166,7 @@ struct SettingsView: View {
         }
     }
 
+    #if DEBUG
     private var developerSection: some View {
         SettingsSection(title: "Developer · mock store", icon: "hammer") {
             VStack(alignment: .leading, spacing: PillarsSpacing.m) {
@@ -133,6 +182,8 @@ struct SettingsView: View {
             }
         }
     }
+
+    #endif
 
     private func purposeSection(appState: AppState) -> some View {
         SettingsSection(title: "The eighth pillar", icon: "mountain.2.fill") {
@@ -225,6 +276,7 @@ struct SettingsView: View {
 
     // MARK: Mock store helpers
 
+    #if DEBUG
     private func isMockSelected(_ option: String) -> Bool {
         switch option {
         case "Free": return entitlements.ownedTiers.isEmpty
@@ -244,6 +296,7 @@ struct SettingsView: View {
         default: break
         }
     }
+    #endif
 
     // MARK: Purpose alias helpers
 
@@ -326,6 +379,7 @@ private struct FlowChips: View {
     SettingsView()
         .environment(AppState())
         .environment(EntitlementManager())
+        .environment(NotificationManager())
         .modelContainer(PreviewData.container)
         .preferredColorScheme(.dark)
 }

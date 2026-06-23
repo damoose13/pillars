@@ -27,6 +27,7 @@ struct PillarDetailView: View {
                 statusCard
                 if history.count > 1 { historyCard }
                 supportCard
+                ritualCard
             }
             .frame(maxWidth: 560)
             .frame(maxWidth: .infinity)
@@ -38,6 +39,38 @@ struct PillarDetailView: View {
         .pillarsBackground()
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(.hidden, for: .navigationBar)
+    }
+
+    /// Turn the detail screen from "look" into "act": a ritual to anchor this pillar.
+    @ViewBuilder private var ritualCard: some View {
+        if let ritual = RitualLibrary.anchor(for: pillar) {
+            NavigationLink {
+                RitualDetailView(ritual: ritual)
+            } label: {
+                PillarGlassCard(highlight: true) {
+                    VStack(alignment: .leading, spacing: PillarsSpacing.s) {
+                        Text("A ritual for \(pillar.displayName)")
+                            .pillarsOverline(PillarsColors.gold.opacity(0.9))
+                        HStack(spacing: PillarsSpacing.m) {
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text(ritual.name)
+                                    .font(PillarsTypography.title)
+                                    .foregroundStyle(PillarsColors.primaryText)
+                                Text(ritual.summary)
+                                    .font(PillarsTypography.callout)
+                                    .foregroundStyle(PillarsColors.secondaryText)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                            Spacer(minLength: 0)
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundStyle(PillarsColors.tertiaryText)
+                        }
+                    }
+                }
+            }
+            .buttonStyle(PressableButtonStyle())
+        }
     }
 
     private var heading: some View {

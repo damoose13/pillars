@@ -26,7 +26,8 @@ struct TodayDashboardView: View {
                     topBar
 
                     if let result {
-                        TodayFoundationHeader(result: result)
+                        if !hasCheckedInToday { todayNudge }
+                        TodayFoundationHeader(result: result, isToday: hasCheckedInToday)
                         orbSection(result)
                         highlights(result)
                         movesSection(result)
@@ -92,9 +93,58 @@ struct TodayDashboardView: View {
                     .font(PillarsTypography.caption)
                     .foregroundStyle(PillarsColors.tertiaryText)
             }
+            rhythmLine
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, PillarsSpacing.xs)
+    }
+
+    /// A calm continuity signal — not a streak, just a quiet rhythm.
+    @ViewBuilder private var rhythmLine: some View {
+        if checkInDaysThisWeek >= 2 {
+            Text("A steady rhythm — \(checkInDaysThisWeek) of the last 7 days.")
+                .font(PillarsTypography.caption)
+                .foregroundStyle(PillarsColors.secondaryText)
+        }
+    }
+
+    /// A gentle prompt when the day's check-in hasn't happened yet.
+    private var todayNudge: some View {
+        Button { showCheckIn = true } label: {
+            PillarGlassCard(padding: PillarsSpacing.m, highlight: true) {
+                HStack(spacing: PillarsSpacing.m) {
+                    ZStack {
+                        Circle().fill(PillarsColors.gold.opacity(0.14))
+                        Image(systemName: "sun.horizon")
+                            .font(.system(size: 18, weight: .medium))
+                            .foregroundStyle(PillarsColors.gold)
+                    }
+                    .frame(width: 44, height: 44)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("How are you today?")
+                            .font(PillarsTypography.headline)
+                            .foregroundStyle(PillarsColors.primaryText)
+                        Text("You're looking at where you left off. A fresh check-in takes a minute.")
+                            .font(PillarsTypography.caption)
+                            .foregroundStyle(PillarsColors.secondaryText)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    Spacer(minLength: 0)
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(PillarsColors.tertiaryText)
+                }
+            }
+        }
+        .buttonStyle(PressableButtonStyle())
+    }
+
+    /// Distinct days with a check-in over the last 7 days.
+    private var checkInDaysThisWeek: Int {
+        let cal = Calendar.current
+        let cutoff = cal.date(byAdding: .day, value: -6, to: cal.startOfDay(for: .now)) ?? .now
+        let days = checkIns.filter { $0.date >= cutoff }.map { cal.startOfDay(for: $0.date) }
+        return Set(days).count
     }
 
     // MARK: Highlights (weakest / strongest)

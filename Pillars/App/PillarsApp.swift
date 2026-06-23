@@ -7,6 +7,8 @@ struct PillarsApp: App {
     @State private var appState = AppState()
     /// Subscription state & feature gating (StoreKit 2, with offline mock mode).
     @State private var entitlements = EntitlementManager()
+    /// Local daily check-in reminder.
+    @State private var notifications = NotificationManager()
 
     /// Local-first SwiftData store. Circle models are registered now so the schema is
     /// stable, even though the Circle feature layer ships later.
@@ -31,9 +33,11 @@ struct PillarsApp: App {
             RootView()
                 .environment(appState)
                 .environment(entitlements)
+                .environment(notifications)
                 .tint(PillarsColors.gold)
                 .preferredColorScheme(.dark)
                 .task { await entitlements.start() }
+                .task { await notifications.refresh() }
         }
         .modelContainer(modelContainer)
     }
