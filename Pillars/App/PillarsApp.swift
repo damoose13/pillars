@@ -4,29 +4,14 @@ import SwiftData
 @main
 struct PillarsApp: App {
     /// App-level, observable preferences/state.
-    @State private var appState = AppState()
+    @State private var appState = AppLaunch.makeAppState()
     /// Subscription state & feature gating (StoreKit 2, with offline mock mode).
-    @State private var entitlements = EntitlementManager()
+    @State private var entitlements = AppLaunch.makeEntitlements()
     /// Local daily check-in reminder.
     @State private var notifications = NotificationManager()
 
-    /// Local-first SwiftData store. Circle models are registered now so the schema is
-    /// stable, even though the Circle feature layer ships later.
-    let modelContainer: ModelContainer = {
-        let schema = Schema([
-            DailyCheckIn.self,
-            PillarAction.self,
-            CircleGroup.self,
-            CircleMember.self,
-            SharedWin.self
-        ])
-        let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-        do {
-            return try ModelContainer(for: schema, configurations: [configuration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
-    }()
+    /// Local-first SwiftData store (in-memory + seeded under `--uitest`).
+    let modelContainer: ModelContainer = AppLaunch.makeContainer()
 
     var body: some Scene {
         WindowGroup {
