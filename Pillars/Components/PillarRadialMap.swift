@@ -76,8 +76,11 @@ struct PillarRadialMap: View {
     /// and proceeding clockwise.
     private func vertex(index: Int, value: Double, center: CGPoint, radius: CGFloat) -> CGPoint {
         let angle = (Double(index) / Double(pillars.count)) * 2 * .pi - .pi / 2
-        let r = radius * CGFloat(value / Double(maxScore))
-        return CGPoint(x: center.x + cos(angle) * r, y: center.y + sin(angle) * r)
+        let r = Double(radius) * (value / Double(maxScore))
+        return CGPoint(
+            x: center.x + CGFloat(cos(angle) * r),
+            y: center.y + CGFloat(sin(angle) * r)
+        )
     }
 
     private func ringPath(scale: CGFloat, center: CGPoint, radius: CGFloat) -> Path {
