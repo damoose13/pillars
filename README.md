@@ -10,17 +10,29 @@ restoring actions**. Local-first. Private by design.
 
 ---
 
-## Status — v0.1 (Individual mode)
+## Status
 
-The first milestone is intentionally narrow and complete:
+**v0.1 — Individual mode (complete).** A user completes an 8‑pillar daily check‑in and
+receives a **Today** cockpit with a system score, weakest & strongest pillar, all 8 pillar
+scores, exactly 3 recommended restoring actions, and a visual pillar map — plus a **Weekly
+Review** and **History**.
 
-> A user completes an 8‑pillar daily check‑in and receives a **Today** dashboard with a
-> system score, weakest & strongest pillar, all 8 pillar scores, exactly 3 recommended
-> restoring actions, and a visual pillar map.
+**v0.2 — Circle layer (mock).** Create a Circle, invite simulated trusted people, and see a
+privacy‑safe **Circle Pulse**, shared resets, and voluntary shared wins. Privacy is gated by
+size and enforced in the engine — never in the view:
 
-Circles, real backend (Supabase), HealthKit, and subscriptions (StoreKit 2) are
-**deliberately deferred** to later versions. The `CircleGroup` / `SharedWin` SwiftData
-models are included as foundation only — there is no Circle UI yet.
+| Circle size | What the Circle ever sees |
+|---|---|
+| 2 people | voluntary shared wins + suggestions only (no aggregates) |
+| 3 people | one vague, blurred trend (e.g. "Connect is quiet") |
+| 4+ people | aggregate pillar trend *labels* — never numbers, never per‑member |
+| any size | a win you choose to share |
+
+Individual pillar scores are **never** exposed in Circle mode. There is no auth/backend yet —
+members are fabricated on‑device purely to exercise the privacy logic.
+
+Real backend (Supabase), HealthKit, and subscriptions (StoreKit 2) remain **deliberately
+deferred** to later versions.
 
 ## The eight pillars
 

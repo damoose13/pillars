@@ -20,6 +20,10 @@ struct MainTabView: View {
                 .tag(AppTab.moves)
                 .tabItem { Label("Moves", systemImage: "checklist") }
 
+            CircleHomeView()
+                .tag(AppTab.circle)
+                .tabItem { Label("Circle", systemImage: "person.3") }
+
             SettingsView()
                 .tag(AppTab.settings)
                 .tabItem { Label("Settings", systemImage: "slider.horizontal.3") }

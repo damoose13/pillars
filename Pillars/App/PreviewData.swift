@@ -5,7 +5,7 @@ import SwiftData
 /// In-memory SwiftData container with a couple of seeded check-ins, used by `#Preview`s.
 enum PreviewData {
     @MainActor static let container: ModelContainer = {
-        let schema = Schema([DailyCheckIn.self, PillarAction.self, CircleGroup.self, SharedWin.self])
+        let schema = Schema([DailyCheckIn.self, PillarAction.self, CircleGroup.self, CircleMember.self, SharedWin.self])
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         let container = try! ModelContainer(for: schema, configurations: [config])
         let context = container.mainContext
@@ -24,6 +24,18 @@ enum PreviewData {
         )
         context.insert(yesterday)
         context.insert(today)
+
+        // A sample Circle of three (you + two), so Circle previews have content.
+        let circle = CircleGroup(name: "My Circle")
+        context.insert(circle)
+        let you = CircleMember(name: "You", colorIndex: 0, isYou: true,
+                               bodyScore: 4, fuelScore: 3, sleepScore: 4, recoverScore: 3,
+                               mindScore: 3, connectScore: 2, spaceScore: 4, purposeScore: 2)
+        context.insert(you)
+        context.insert(CircleMember.mock(name: "Maya", colorIndex: 1))
+        context.insert(CircleMember.mock(name: "Theo", colorIndex: 2))
+        context.insert(SharedWin(title: "Walked at sunrise", pillar: .body,
+                                 note: "Cleared my head before the day started.", authorName: "Maya"))
         return container
     }()
 }

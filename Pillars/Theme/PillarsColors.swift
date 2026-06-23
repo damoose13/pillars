@@ -35,4 +35,14 @@ enum PillarsColors {
     // MARK: Signal (used sparingly for trends — never for "good/bad" judgement)
     static let positive = Color(red: 0.46, green: 0.66, blue: 0.53)
     static let caution = Color(red: 0.80, green: 0.49, blue: 0.45)
+
+    // MARK: Circle member avatars — muted, distinct from the pillar palette.
+    static let memberPalette: [Color] = [
+        Color(red: 0.80, green: 0.55, blue: 0.45),
+        Color(red: 0.55, green: 0.62, blue: 0.78),
+        Color(red: 0.58, green: 0.70, blue: 0.55),
+        Color(red: 0.74, green: 0.58, blue: 0.72),
+        Color(red: 0.78, green: 0.68, blue: 0.42),
+        Color(red: 0.50, green: 0.68, blue: 0.66)
+    ]
 }

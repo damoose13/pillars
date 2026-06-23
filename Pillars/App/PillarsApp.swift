@@ -13,6 +13,7 @@ struct PillarsApp: App {
             DailyCheckIn.self,
             PillarAction.self,
             CircleGroup.self,
+            CircleMember.self,
             SharedWin.self
         ])
         let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
