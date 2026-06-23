@@ -17,6 +17,7 @@ struct CircleHomeView: View {
     @State private var showAddPeople = false
     @State private var showLeaveConfirm = false
     @State private var showPaywall = false
+    @State private var showSharedReset = false
 
     private var hasCircle: Bool { !circles.isEmpty }
 
@@ -61,6 +62,7 @@ struct CircleHomeView: View {
             .sheet(isPresented: $showPrivacy) { PrivacyExplainerView() }
             .sheet(isPresented: $showAddPeople) { AddPeopleSheet() }
             .sheet(isPresented: $showPaywall) { PaywallView(highlightTier: .circlePass) }
+            .sheet(isPresented: $showSharedReset) { SharedResetFlowView() }
             .confirmationDialog("Leave this Circle?", isPresented: $showLeaveConfirm, titleVisibility: .visible) {
                 Button("Leave Circle", role: .destructive) { leaveCircle() }
                 Button("Cancel", role: .cancel) {}
@@ -138,7 +140,9 @@ struct CircleHomeView: View {
                 CircleActionSuggestionView(action: action, onNudge: {})
             }
             if !pulse.isAlone {
-                Text("Nudges are a gentle ping — playful, optional, and no one ever sees your scores.")
+                PrimaryButton(title: "Start a shared reset", icon: "sparkles") { showSharedReset = true }
+                    .padding(.top, PillarsSpacing.xxs)
+                Text("Nudges are a gentle ping. A shared reset walks you through inviting someone and showing up — no one ever sees your scores.")
                     .font(PillarsTypography.caption)
                     .foregroundStyle(PillarsColors.tertiaryText)
                     .fixedSize(horizontal: false, vertical: true)

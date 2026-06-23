@@ -3,7 +3,7 @@ import SwiftData
 
 /// A small restoring action surfaced to the user.
 ///
-/// Recommendations themselves are computed fresh (see `RecommendationEngine`); a
+/// Recommendations themselves are computed fresh (see `RestorationEngine`); a
 /// `PillarAction` is persisted to remember *completion* of one of today's moves.
 @Model
 final class PillarAction {

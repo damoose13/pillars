@@ -36,6 +36,19 @@ struct PillarMoveCard: View {
                         }
                     }
                     .padding(.top, 3)
+
+                    HStack(spacing: 6) {
+                        Circle().fill(recommendation.emotionalTone.color).frame(width: 6, height: 6)
+                        Text("\(recommendation.emotionalTone.label.lowercased()) restoration")
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundStyle(recommendation.emotionalTone.color)
+                        if recommendation.shareable {
+                            Image(systemName: "person.2")
+                                .font(.system(size: 10, weight: .semibold))
+                                .foregroundStyle(PillarsColors.tertiaryText)
+                        }
+                    }
+                    .padding(.top, 1)
                 }
 
                 Spacer(minLength: 0)

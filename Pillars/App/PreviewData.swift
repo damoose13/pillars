@@ -25,6 +25,12 @@ enum PreviewData {
         context.insert(yesterday)
         context.insert(today)
 
+        // A couple of completed restorations, so "most supported" has something to show.
+        context.insert(PillarAction(title: "Reach one person honestly", subtitle: "A short, real message.",
+                                    pillar: .connect, isCompleted: true, completedAt: .now))
+        context.insert(PillarAction(title: "Clear one surface", subtitle: "Bed, desk, or floor.",
+                                    pillar: .space, isCompleted: true, completedAt: .now))
+
         // A sample Circle of three (you + two), so Circle previews have content.
         let circle = CircleGroup(name: "My Circle")
         context.insert(circle)

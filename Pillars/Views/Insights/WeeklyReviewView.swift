@@ -6,10 +6,11 @@ import SwiftData
 struct WeeklyReviewView: View {
     @Environment(EntitlementManager.self) private var entitlements
     @Query(sort: \DailyCheckIn.date, order: .reverse) private var checkIns: [DailyCheckIn]
+    @Query private var actions: [PillarAction]
 
     @State private var showPaywall = false
 
-    private var review: WeeklyReview? { WeeklyReviewEngine.review(from: checkIns) }
+    private var review: WeeklyReview? { WeeklyReviewEngine.review(from: checkIns, actions: actions) }
 
     var body: some View {
         ScrollView {
@@ -21,6 +22,7 @@ struct WeeklyReviewView: View {
                 } else if let review {
                     summaryCard(review)
                     highlightsRow(review)
+                    supportedCard(review)
                     patternCard(review)
                     focusCard(review)
                     suggestionsSection(review)
@@ -127,18 +129,52 @@ struct WeeklyReviewView: View {
         }
     }
 
+    /// What the user actually showed up for this week — the recorded effect of the loop.
+    private func supportedCard(_ review: WeeklyReview) -> some View {
+        PillarGlassCard(padding: PillarsSpacing.m) {
+            HStack(spacing: PillarsSpacing.m) {
+                Image(systemName: "checkmark.seal")
+                    .font(.system(size: 20, weight: .medium))
+                    .foregroundStyle(PillarsColors.gold)
+                    .frame(width: 40)
+                if let supported = review.mostSupportedPillar {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("You showed up most for \(supported.displayName)")
+                            .font(PillarsTypography.headline)
+                            .foregroundStyle(PillarsColors.primaryText)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Text("Restoration leaves a mark. This is where you invested.")
+                            .font(PillarsTypography.caption)
+                            .foregroundStyle(PillarsColors.secondaryText)
+                    }
+                } else {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("No restorations logged yet")
+                            .font(PillarsTypography.headline)
+                            .foregroundStyle(PillarsColors.primaryText)
+                        Text("Completing one this week teaches Pillars what helps you.")
+                            .font(PillarsTypography.caption)
+                            .foregroundStyle(PillarsColors.secondaryText)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+                Spacer(minLength: 0)
+            }
+        }
+    }
+
     private func focusCard(_ review: WeeklyReview) -> some View {
         PillarGlassCard {
             VStack(alignment: .leading, spacing: PillarsSpacing.m) {
-                Text("Next week's focus")
+                Text("Highest leverage next week")
                     .pillarsOverline()
                 HStack(spacing: PillarsSpacing.m) {
-                    PillarIconBadge(pillar: review.focusPillar, size: 52)
+                    PillarIconBadge(pillar: review.highestLeveragePillar, size: 52)
                     VStack(alignment: .leading, spacing: 3) {
-                        Text(review.focusPillar.displayName)
+                        Text(review.highestLeveragePillar.displayName)
                             .font(PillarsTypography.title)
                             .foregroundStyle(PillarsColors.primaryText)
-                        Text("This is the pillar that needs support first.")
+                        Text("Support this one and the rest tend to rise with it.")
                             .font(PillarsTypography.callout)
                             .foregroundStyle(PillarsColors.secondaryText)
                             .fixedSize(horizontal: false, vertical: true)

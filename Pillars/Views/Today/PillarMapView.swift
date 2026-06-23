@@ -100,9 +100,14 @@ private struct PillarListRow: View {
             HStack(spacing: PillarsSpacing.m) {
                 PillarIconBadge(pillar: pillar)
                 VStack(alignment: .leading, spacing: 5) {
-                    Text(pillar.displayName)
-                        .font(PillarsTypography.headline)
-                        .foregroundStyle(PillarsColors.primaryText)
+                    HStack(spacing: PillarsSpacing.xs) {
+                        Text(pillar.displayName)
+                            .font(PillarsTypography.headline)
+                            .foregroundStyle(PillarsColors.primaryText)
+                        Text(PillarState.from(score: score).label)
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundStyle(PillarState.from(score: score).color)
+                    }
                     ScoreDots(score: score, accent: pillar.color)
                 }
                 Spacer(minLength: PillarsSpacing.xs)

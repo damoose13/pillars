@@ -30,15 +30,16 @@ struct TodayFoundationHeader: View {
         date.formatted(.dateTime.weekday(.wide).month(.wide).day()).uppercased()
     }
 
-    /// A single, non-judgemental read of the day. Leads with the pillar that needs support.
+    /// A single, non-judgemental read of the day. Leads with the pillar asking for support.
     private var summary: String {
         let weak = result.weakestPillar.displayName
         let strong = result.strongestPillar.displayName
+        let weakState = PillarState.from(score: result.score(for: result.weakestPillar))
         switch result.systemScore {
         case 80...:
-            return "Your system is strong today. \(strong) is carrying you — let \(weak) catch up gently."
+            return "Your system is firm today. \(strong) is carrying you — let \(weak) catch up gently."
         case 60..<80:
-            return "You're steady. \(weak) is the pillar asking for attention; \(strong) is holding firm."
+            return "You're steady. \(weak) is \(weakState.label.lowercased()); \(strong) is holding firm."
         case 40..<60:
             return "A mixed day. Lead with \(weak) — small support there will lift the whole system."
         default:

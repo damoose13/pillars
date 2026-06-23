@@ -17,8 +17,8 @@ enum RecommendationMode: String, Codable, CaseIterable, Hashable {
     }
 }
 
-/// A single restoring action the app suggests. Value type — produced by
-/// `RecommendationEngine`, never stored directly (completion is tracked via `PillarAction`).
+/// A single restoring action the app suggests — the output of `RestorationEngine`. Value
+/// type, never stored directly (completion is tracked via `PillarAction`).
 struct PillarRecommendation: Identifiable, Hashable {
     let id: String
     let title: String
@@ -26,13 +26,18 @@ struct PillarRecommendation: Identifiable, Hashable {
     let pillar: PillarType
     var mode: RecommendationMode
     var estimatedMinutes: Int
+    var emotionalTone: EmotionalTone
+    /// Whether this restoration can be offered to a Circle as a shared reset.
+    var shareable: Bool
 
     init(
         title: String,
         subtitle: String,
         pillar: PillarType,
         mode: RecommendationMode = .solo,
-        estimatedMinutes: Int = 5
+        estimatedMinutes: Int = 5,
+        emotionalTone: EmotionalTone = .grounding,
+        shareable: Bool = false
     ) {
         // Stable identity from pillar + title so completion state survives recomputation.
         self.id = "\(pillar.rawValue)|\(title)"
@@ -41,5 +46,7 @@ struct PillarRecommendation: Identifiable, Hashable {
         self.pillar = pillar
         self.mode = mode
         self.estimatedMinutes = estimatedMinutes
+        self.emotionalTone = emotionalTone
+        self.shareable = shareable
     }
 }

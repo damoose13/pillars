@@ -101,18 +101,16 @@ struct TodayDashboardView: View {
 
     private func highlights(_ result: PillarScoreResult) -> some View {
         let weakest = PillarHighlightCard(
-            label: "Needs support",
+            role: "Asking for support",
             pillar: result.weakestPillar,
             score: result.score(for: result.weakestPillar),
-            trend: result.trend(for: result.weakestPillar),
-            emphasized: true
+            trend: result.trend(for: result.weakestPillar)
         )
         let strongest = PillarHighlightCard(
-            label: "Holding firm",
+            role: "Carrying you today",
             pillar: result.strongestPillar,
             score: result.score(for: result.strongestPillar),
-            trend: result.trend(for: result.strongestPillar),
-            emphasized: false
+            trend: result.trend(for: result.strongestPillar)
         )
         // Side-by-side normally; stacks on narrow widths.
         return ViewThatFits(in: .horizontal) {
@@ -124,7 +122,7 @@ struct TodayDashboardView: View {
     // MARK: Moves
 
     private func movesSection(_ result: PillarScoreResult) -> some View {
-        let recs = RecommendationEngine.recommendations(for: result)
+        let recs = RestorationEngine.restorations(for: result)
         return VStack(alignment: .leading, spacing: PillarsSpacing.m) {
             SectionHeader(
                 title: "Today's Moves",
@@ -271,25 +269,31 @@ private struct NavCard: View {
     }
 }
 
-/// One of the two "extremes" cards on the dashboard.
+/// One of the two "extremes" cards on the dashboard, framed in pillar-state language.
 private struct PillarHighlightCard: View {
-    let label: String
+    let role: String
     let pillar: PillarType
     let score: Int
     let trend: Int
-    let emphasized: Bool
+
+    private var state: PillarState { PillarState.from(score: score) }
 
     var body: some View {
-        PillarGlassCard(padding: PillarsSpacing.m, highlight: emphasized) {
+        PillarGlassCard(padding: PillarsSpacing.m, highlight: state.isAskingForSupport) {
             VStack(alignment: .leading, spacing: PillarsSpacing.s) {
-                Text(label).pillarsOverline(emphasized ? PillarsColors.gold.opacity(0.9) : PillarsColors.secondaryText)
+                Text(role).pillarsOverline(state.isAskingForSupport ? PillarsColors.gold.opacity(0.9) : PillarsColors.secondaryText)
                 HStack(spacing: PillarsSpacing.s) {
                     PillarIconBadge(pillar: pillar, size: 40)
-                    Text(pillar.displayName)
-                        .font(PillarsTypography.titleSmall)
-                        .foregroundStyle(PillarsColors.primaryText)
-                        .minimumScaleFactor(0.7)
-                        .lineLimit(1)
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(pillar.displayName)
+                            .font(PillarsTypography.titleSmall)
+                            .foregroundStyle(PillarsColors.primaryText)
+                            .minimumScaleFactor(0.7)
+                            .lineLimit(1)
+                        Text(state.label)
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundStyle(state.color)
+                    }
                 }
                 HStack {
                     ScoreDots(score: score, accent: pillar.color)

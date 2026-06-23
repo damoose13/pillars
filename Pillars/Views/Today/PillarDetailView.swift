@@ -61,13 +61,13 @@ struct PillarDetailView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Today")
                         .pillarsOverline()
-                    HStack(alignment: .firstTextBaseline, spacing: 6) {
+                    HStack(alignment: .firstTextBaseline, spacing: 8) {
                         Text("\(currentScore)")
                             .font(PillarsFont.serif(44, .semibold))
                             .foregroundStyle(PillarsColors.primaryText)
-                        Text("/ 5")
-                            .font(PillarsTypography.body)
-                            .foregroundStyle(PillarsColors.tertiaryText)
+                        Text(PillarState.from(score: currentScore).label)
+                            .font(PillarsTypography.callout.weight(.semibold))
+                            .foregroundStyle(PillarState.from(score: currentScore).color)
                     }
                     ScoreDots(score: currentScore, accent: pillar.color, dot: 9)
                 }

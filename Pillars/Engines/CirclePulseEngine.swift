@@ -96,7 +96,7 @@ enum CirclePulseEngine {
         let weakest = rankedWeakest.first ?? .connect
 
         func vague(_ value: Double) -> String {
-            value < quiet ? "Quiet" : (value < lifting ? "Steady" : "Lifting")
+            value < quiet ? "Quiet" : (value < lifting ? "Steady" : "Firm")
         }
 
         // Headline — playful, supportive, never about an individual.

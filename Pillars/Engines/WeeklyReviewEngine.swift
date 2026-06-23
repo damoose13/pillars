@@ -1,7 +1,7 @@
 import Foundation
 
-/// A calm, rule-based summary of the past week of check-ins. No diagnoses, no charts —
-/// just the few things worth noticing and one focus for the week ahead.
+/// A calm, rule-based summary of the past week. No diagnoses — just the few things worth
+/// noticing and one high-leverage focus for the week ahead.
 struct WeeklyReview {
     let checkInCount: Int
     /// 0–100, averaged across the window.
@@ -13,22 +13,24 @@ struct WeeklyReview {
     let strongestPillar: PillarType
     /// The pillar that rose most across the window, if any movement was meaningful.
     let mostImprovedPillar: PillarType?
-    /// Where attention pays off most next week.
-    let focusPillar: PillarType
+    /// The pillar the user actually restored most (most completed restorations this week).
+    let mostSupportedPillar: PillarType?
+    /// Where support pays off most next week — not always the weakest.
+    let highestLeveragePillar: PillarType
     /// One plain-language pattern, surfaced by simple rules.
     let hiddenPattern: String
-    /// Up to three suggested actions for the week ahead.
+    /// Up to three restorations for the week ahead.
     let recommendations: [PillarRecommendation]
 
     func average(for pillar: PillarType) -> Double { averagePillarScores[pillar] ?? 3 }
 }
 
-/// Pure weekly-review logic over a history of check-ins.
+/// Pure weekly-review logic over a history of check-ins and completed restorations.
 enum WeeklyReviewEngine {
 
     /// Builds a review from the most recent `window` check-ins (default 7). Returns `nil`
     /// when there isn't enough history yet.
-    static func review(from checkIns: [DailyCheckIn], window: Int = 7) -> WeeklyReview? {
+    static func review(from checkIns: [DailyCheckIn], actions: [PillarAction] = [], window: Int = 7) -> WeeklyReview? {
         let sorted = checkIns.sorted { $0.date < $1.date } // oldest → newest
         let recent = Array(sorted.suffix(window))
         guard recent.count >= 2 else { return nil }
@@ -50,25 +52,21 @@ enum WeeklyReviewEngine {
             avg($0) != avg($1) ? avg($0) < avg($1) : canonical($0) > canonical($1)
         } ?? .purpose
 
-        // Average system score across the window.
         let avgSystem = recent.reduce(0) { $0 + $1.systemScore } / recent.count
         let systemTrend = (recent.last?.systemScore ?? 0) - (recent.first?.systemScore ?? 0)
 
-        // Most improved: earlier half vs later half.
         let mostImproved = mostImprovedPillar(in: recent)
+        let mostSupported = mostSupportedPillar(actions: actions, window: window)
+        let leverage = highestLeverage(averages: averages, weakest: weakest)
+        let pattern = hiddenPattern(averages: averages, strongest: strongest, mostImproved: mostImproved)
 
-        let focus = weakest
-        let pattern = hiddenPattern(
-            averages: averages, weakest: weakest, strongest: strongest, mostImproved: mostImproved
-        )
-
-        // Suggested actions: feed the averaged scores through the existing engine.
+        // Suggested restorations: feed the averaged scores through the restoration engine.
         let synthetic = DailyCheckIn()
         for pillar in PillarType.allCases {
             synthetic.setScore(Int(avg(pillar).rounded()), for: pillar)
         }
         let result = PillarScoringEngine.result(for: synthetic)
-        let recommendations = RecommendationEngine.recommendations(for: result)
+        let recommendations = RestorationEngine.restorations(for: result)
 
         return WeeklyReview(
             checkInCount: recent.count,
@@ -78,7 +76,8 @@ enum WeeklyReviewEngine {
             weakestPillar: weakest,
             strongestPillar: strongest,
             mostImprovedPillar: mostImproved,
-            focusPillar: focus,
+            mostSupportedPillar: mostSupported,
+            highestLeveragePillar: leverage,
             hiddenPattern: pattern,
             recommendations: recommendations
         )
@@ -102,22 +101,42 @@ enum WeeklyReviewEngine {
         var bestDelta = 0.25 // require a meaningful rise
         for pillar in PillarType.allCases {
             let delta = mean(pillar, late) - mean(pillar, early)
-            if delta > bestDelta {
-                bestDelta = delta
-                best = pillar
-            }
+            if delta > bestDelta { bestDelta = delta; best = pillar }
         }
         return best
     }
 
+    private static func mostSupportedPillar(actions: [PillarAction], window: Int) -> PillarType? {
+        let cutoff = Calendar.current.date(byAdding: .day, value: -window, to: .now) ?? .distantPast
+        let completed = actions.filter { $0.isCompleted && ($0.completedAt ?? $0.createdAt) >= cutoff }
+        guard !completed.isEmpty else { return nil }
+        var counts: [PillarType: Int] = [:]
+        for action in completed { counts[action.pillar, default: 0] += 1 }
+        let canonical: (PillarType) -> Int = { PillarType.allCases.firstIndex(of: $0) ?? 0 }
+        return counts.max {
+            $0.value != $1.value ? $0.value < $1.value : canonical($0.key) > canonical($1.key)
+        }?.key
+    }
+
+    /// Highest leverage isn't always the weakest — an upstream pillar (sleep, space) often
+    /// lifts a downstream one (mind) with it.
+    private static func highestLeverage(averages: [PillarType: Double], weakest: PillarType) -> PillarType {
+        func a(_ p: PillarType) -> Double { averages[p] ?? 3 }
+        let low = 2.6
+        if a(.sleep) < low && a(.mind) < low { return .sleep }
+        if a(.space) < low && a(.mind) < low { return .space }
+        if a(.connect) < low && a(.purpose) < low { return .connect }
+        if a(.fuel) < low && a(.body) < low { return .fuel }
+        return weakest
+    }
+
     private static func hiddenPattern(
         averages: [PillarType: Double],
-        weakest: PillarType,
         strongest: PillarType,
         mostImproved: PillarType?
     ) -> String {
         func avg(_ pillar: PillarType) -> Double { averages[pillar] ?? 3 }
-        let low = 2.5
+        let low = 2.6
 
         if avg(.sleep) < low && avg(.mind) < low {
             return "When your Sleep dips, your Mind tends to follow. Rest is the lever this week."

@@ -13,35 +13,69 @@ struct TodayMovesView: View {
     private var result: PillarScoreResult? { PillarScoringEngine.result(from: checkIns) }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: PillarsSpacing.xl) {
-                header
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: PillarsSpacing.xl) {
+                    header
 
-                if let result {
-                    let recs = RecommendationEngine.recommendations(for: result)
-                    progressCard(recs)
-                    VStack(spacing: PillarsSpacing.m) {
-                        ForEach(recs) { rec in
-                            PillarMoveCard(
-                                recommendation: rec,
-                                isCompleted: isDone(rec),
-                                onToggle: { toggle(rec) }
-                            )
+                    if let result {
+                        let recs = RestorationEngine.restorations(for: result)
+                        progressCard(recs)
+                        VStack(spacing: PillarsSpacing.m) {
+                            ForEach(recs) { rec in
+                                PillarMoveCard(
+                                    recommendation: rec,
+                                    isCompleted: isDone(rec),
+                                    onToggle: { toggle(rec) }
+                                )
+                            }
                         }
+                        ritualsLink
+                        footerNote
+                    } else {
+                        emptyState
+                        ritualsLink
                     }
-                    footerNote
-                } else {
-                    emptyState
+                }
+                .frame(maxWidth: 600)
+                .frame(maxWidth: .infinity)
+                .padding(.horizontal, PillarsSpacing.screenH)
+                .padding(.top, PillarsSpacing.xl)
+                .padding(.bottom, PillarsSpacing.xxl)
+            }
+            .scrollIndicators(.hidden)
+            .pillarsBackground()
+            .toolbar(.hidden, for: .navigationBar)
+        }
+    }
+
+    private var ritualsLink: some View {
+        NavigationLink {
+            RitualLibraryView()
+        } label: {
+            PillarGlassCard(padding: PillarsSpacing.m) {
+                HStack(spacing: PillarsSpacing.m) {
+                    Image(systemName: "books.vertical")
+                        .font(.system(size: 18, weight: .medium))
+                        .foregroundStyle(PillarsColors.gold)
+                        .frame(width: 40, height: 40)
+                        .background(Circle().fill(PillarsColors.gold.opacity(0.12)))
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("The Ritual Library")
+                            .font(PillarsTypography.headline)
+                            .foregroundStyle(PillarsColors.primaryText)
+                        Text("Repeatable practices to return to")
+                            .font(PillarsTypography.caption)
+                            .foregroundStyle(PillarsColors.secondaryText)
+                    }
+                    Spacer(minLength: 0)
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(PillarsColors.tertiaryText)
                 }
             }
-            .frame(maxWidth: 600)
-            .frame(maxWidth: .infinity)
-            .padding(.horizontal, PillarsSpacing.screenH)
-            .padding(.top, PillarsSpacing.xl)
-            .padding(.bottom, PillarsSpacing.xxl)
         }
-        .scrollIndicators(.hidden)
-        .pillarsBackground()
+        .buttonStyle(PressableButtonStyle())
     }
 
     private var header: some View {
