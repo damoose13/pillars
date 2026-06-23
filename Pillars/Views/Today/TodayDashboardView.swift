@@ -20,30 +20,34 @@ struct TodayDashboardView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: PillarsSpacing.xl) {
-                topBar
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: PillarsSpacing.xl) {
+                    topBar
 
-                if let result {
-                    TodayFoundationHeader(result: result)
-                    orbSection(result)
-                    highlights(result)
-                    movesSection(result)
-                    mapSection(result)
-                } else {
-                    emptyState
+                    if let result {
+                        TodayFoundationHeader(result: result)
+                        orbSection(result)
+                        highlights(result)
+                        movesSection(result)
+                        mapSection(result)
+                        insightsSection
+                    } else {
+                        emptyState
+                    }
                 }
+                .frame(maxWidth: 600)
+                .frame(maxWidth: .infinity)
+                .padding(.horizontal, PillarsSpacing.screenH)
+                .padding(.top, PillarsSpacing.m)
+                .padding(.bottom, PillarsSpacing.xxl)
             }
-            .frame(maxWidth: 600)
-            .frame(maxWidth: .infinity)
-            .padding(.horizontal, PillarsSpacing.screenH)
-            .padding(.top, PillarsSpacing.m)
-            .padding(.bottom, PillarsSpacing.xxl)
-        }
-        .scrollIndicators(.hidden)
-        .pillarsBackground()
-        .fullScreenCover(isPresented: $showCheckIn) {
-            DailyCheckInView()
+            .scrollIndicators(.hidden)
+            .pillarsBackground()
+            .toolbar(.hidden, for: .navigationBar)
+            .fullScreenCover(isPresented: $showCheckIn) {
+                DailyCheckInView()
+            }
         }
     }
 
@@ -156,6 +160,37 @@ struct TodayDashboardView: View {
         }
     }
 
+    // MARK: Insights (Weekly Review · History)
+
+    private var insightsSection: some View {
+        let weekly = NavigationLink {
+            WeeklyReviewView()
+        } label: {
+            NavCard(
+                icon: "chart.line.uptrend.xyaxis",
+                title: "This week",
+                subtitle: "A gentle weekly read"
+            )
+        }
+        .buttonStyle(PressableButtonStyle())
+
+        let history = NavigationLink {
+            HistoryView()
+        } label: {
+            NavCard(
+                icon: "clock.arrow.circlepath",
+                title: "History",
+                subtitle: "Every check-in, private"
+            )
+        }
+        .buttonStyle(PressableButtonStyle())
+
+        return ViewThatFits(in: .horizontal) {
+            HStack(spacing: PillarsSpacing.m) { weekly; history }
+            VStack(spacing: PillarsSpacing.m) { weekly; history }
+        }
+    }
+
     // MARK: Empty state
 
     private var emptyState: some View {
@@ -200,6 +235,39 @@ struct TodayDashboardView: View {
             context.insert(action)
         }
         try? context.save()
+    }
+}
+
+/// A compact navigation tile (Weekly Review / History) for the dashboard.
+private struct NavCard: View {
+    let icon: String
+    let title: String
+    let subtitle: String
+
+    var body: some View {
+        PillarGlassCard(padding: PillarsSpacing.m) {
+            HStack(spacing: PillarsSpacing.s) {
+                Image(systemName: icon)
+                    .font(.system(size: 18, weight: .medium))
+                    .foregroundStyle(PillarsColors.gold)
+                    .frame(width: 38, height: 38)
+                    .background(Circle().fill(PillarsColors.gold.opacity(0.12)))
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(PillarsTypography.headline)
+                        .foregroundStyle(PillarsColors.primaryText)
+                    Text(subtitle)
+                        .font(PillarsTypography.caption)
+                        .foregroundStyle(PillarsColors.secondaryText)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                }
+                Spacer(minLength: 0)
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(PillarsColors.tertiaryText)
+            }
+        }
     }
 }
 
