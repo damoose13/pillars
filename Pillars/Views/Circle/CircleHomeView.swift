@@ -18,6 +18,8 @@ struct CircleHomeView: View {
     @State private var showLeaveConfirm = false
     @State private var showPaywall = false
     @State private var showSharedReset = false
+    @State private var showSharing = false
+    @State private var selectedMember: CircleMember?
 
     private var hasCircle: Bool { !circles.isEmpty }
 
@@ -69,6 +71,8 @@ struct CircleHomeView: View {
             .sheet(isPresented: $showAddPeople) { AddPeopleSheet() }
             .sheet(isPresented: $showPaywall) { PaywallView(highlightTier: .circlePass) }
             .sheet(isPresented: $showSharedReset) { SharedResetFlowView() }
+            .sheet(isPresented: $showSharing) { CircleSharingSettingsView() }
+            .sheet(item: $selectedMember) { MemberCircleProfileView(member: $0) }
             .confirmationDialog("Leave this Circle?", isPresented: $showLeaveConfirm, titleVisibility: .visible) {
                 Button("Leave Circle", role: .destructive) { leaveCircle() }
                 Button("Cancel", role: .cancel) {}
@@ -109,7 +113,11 @@ struct CircleHomeView: View {
     private var avatarStack: some View {
         HStack(spacing: -10) {
             ForEach(members.prefix(6)) { member in
-                MemberAvatar(name: member.name, colorIndex: member.colorIndex, isYou: member.isYou, size: 40)
+                Button { selectedMember = member } label: {
+                    MemberAvatar(name: member.name, colorIndex: member.colorIndex, isYou: member.isYou, size: 40)
+                }
+                .buttonStyle(PressableButtonStyle())
+                .accessibilityLabel("\(member.name)\(member.isYou ? ", you" : ""). Opens their Circle profile.")
             }
             if members.count > 6 {
                 Text("+\(members.count - 6)")
@@ -195,6 +203,7 @@ struct CircleHomeView: View {
 
     private var manageSection: some View {
         VStack(spacing: PillarsSpacing.m) {
+            SecondaryButton(title: "Your sharing settings", icon: "slider.horizontal.3") { showSharing = true }
             SecondaryButton(title: "Add trusted people", icon: "person.badge.plus") { showAddPeople = true }
             Button(role: .destructive) { showLeaveConfirm = true } label: {
                 Text("Leave Circle")

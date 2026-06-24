@@ -50,6 +50,23 @@ struct CaptureRoot: View {
         // Circle flow.
         case "circle":
             CircleHomeView()
+        case "morale":
+            ScrollView {
+                CircleMoraleView(aggregate: CircleMoraleEngine.aggregate(
+                    members: (0..<5).map { CircleMember.mock(name: CircleMember.sampleRoster[$0], colorIndex: $0) }
+                ))
+                .padding(PillarsSpacing.screenH)
+            }
+            .pillarsBackground()
+        case "memberprofile":
+            MemberCircleProfileView(member: {
+                let m = CircleMember.mock(name: "Maya", colorIndex: 0)
+                m.visibilityLevel = .selectedPillars
+                m.sharedPillars = [.body, .mind, .connect, .purpose]
+                return m
+            }())
+        case "sharing":
+            CircleSharingSettingsView()
         case "privacy":
             PrivacyExplainerView()
         case "sharedwin":
