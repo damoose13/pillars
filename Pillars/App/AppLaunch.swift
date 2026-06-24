@@ -57,12 +57,14 @@ enum AppLaunch {
     }
 
     @MainActor static func makeContainer() -> ModelContainer {
-        let schema = Schema([
-            DailyCheckIn.self, PillarAction.self, CircleGroup.self, CircleMember.self, SharedWin.self
-        ])
+        let schema = Schema(versionedSchema: PillarsSchemaV1.self)
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: isUITest)
         do {
-            let container = try ModelContainer(for: schema, configurations: [config])
+            let container = try ModelContainer(
+                for: schema,
+                migrationPlan: PillarsMigrationPlan.self,
+                configurations: [config]
+            )
             if isUITest { seed(container.mainContext) }
             return container
         } catch {

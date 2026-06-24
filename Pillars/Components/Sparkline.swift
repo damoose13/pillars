@@ -55,6 +55,17 @@ struct Sparkline: View {
                 }
             }
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Recent trend")
+        .accessibilityValue(accessibilitySummary)
+    }
+
+    private var accessibilitySummary: String {
+        guard let first = values.first, let last = values.last, values.count > 1 else {
+            return "Not enough history yet."
+        }
+        let direction = last > first ? "rising" : (last < first ? "easing" : "steady")
+        return "\(direction), now \(last) of 5 over the last \(values.count) check-ins."
     }
 
     private func coordinates(in size: CGSize) -> [CGPoint] {

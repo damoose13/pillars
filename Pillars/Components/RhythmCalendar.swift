@@ -24,6 +24,9 @@ struct RhythmCalendar: View {
                 }
             }
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Check-in calendar for this month")
+        .accessibilityValue("The days you checked in are marked.")
     }
 
     @ViewBuilder private func cell(_ date: Date?) -> some View {

@@ -120,6 +120,7 @@ struct PillarIconBadge: View {
                 .foregroundStyle(pillar.color)
         }
         .frame(width: size, height: size)
+        .accessibilityHidden(true)   // decorative; the pillar name is always shown alongside
     }
 }
 
@@ -140,6 +141,9 @@ struct ScoreDots: View {
                     .frame(width: dot, height: dot)
             }
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Score")
+        .accessibilityValue("\(score) of \(total)")
     }
 }
 
@@ -182,5 +186,8 @@ struct TrendBadge: View {
                 .font(.system(size: 12, weight: .semibold))
         }
         .foregroundStyle(isFlat ? PillarsColors.tertiaryText : (isUp ? PillarsColors.positive : PillarsColors.caution))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Trend")
+        .accessibilityValue(isFlat ? "even" : (isUp ? "up \(abs(delta))\(unit)" : "down \(abs(delta))\(unit)"))
     }
 }

@@ -21,6 +21,9 @@ struct PillarsApp: App {
                 .environment(notifications)
                 .tint(PillarsColors.gold)
                 .preferredColorScheme(.dark)
+                // Allow larger text for accessibility, but clamp extremes so the editorial
+                // layout never breaks.
+                .dynamicTypeSize(...DynamicTypeSize.accessibility1)
                 .task { await entitlements.start() }
                 .task { await notifications.refresh() }
         }
