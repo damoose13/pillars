@@ -1,8 +1,8 @@
 import SwiftUI
 import SwiftData
 
-/// The cockpit. A single, calm read of the day: foundation header, the system-score orb,
-/// the pillars at the extremes, today's three moves, and a compact pillar map.
+/// The cockpit. The interactive Pillar Web is the hero: it shows the shape of the day,
+/// reveals the weak pillar, and leads straight into a restoration.
 struct TodayDashboardView: View {
     @Environment(\.modelContext) private var context
     @Environment(AppState.self) private var appState
@@ -11,6 +11,8 @@ struct TodayDashboardView: View {
     @Query private var actions: [PillarAction]
 
     @State private var showCheckIn = false
+    @State private var selectedPillar: PillarType?
+    @State private var detailPillar: PillarType?
 
     private var result: PillarScoreResult? { PillarScoringEngine.result(from: checkIns) }
 
@@ -28,9 +30,8 @@ struct TodayDashboardView: View {
                     if let result {
                         if !hasCheckedInToday { todayNudge }
                         TodayFoundationHeader(result: result, isToday: hasCheckedInToday)
-                        orbSection(result)
-                        highlights(result)
-                        mapSection(result)
+                        webHero(result)
+                        insightPanel(result)
                         movesSection(result)
                         insightsSection
                     } else {
@@ -46,6 +47,7 @@ struct TodayDashboardView: View {
             .scrollIndicators(.hidden)
             .pillarsBackground()
             .toolbar(.hidden, for: .navigationBar)
+            .navigationDestination(item: $detailPillar) { PillarDetailView(pillar: $0) }
             .fullScreenCover(isPresented: $showCheckIn) {
                 DailyCheckInView()
             }
@@ -76,27 +78,48 @@ struct TodayDashboardView: View {
         }
     }
 
-    // MARK: Orb
+    // MARK: Pillar Web hero
 
-    private func orbSection(_ result: PillarScoreResult) -> some View {
-        VStack(spacing: PillarsSpacing.m) {
-            PillarScoreOrb(score: result.systemScore)
-            if checkIns.count > 1 {
+    private func webHero(_ result: PillarScoreResult) -> some View {
+        VStack(spacing: PillarsSpacing.s) {
+            DynamicPillarWebView(
+                scores: PillarWebScore.all(from: result.pillarScores),
+                mode: .hero,
+                weakestPillar: result.weakestPillar,
+                strongestPillar: result.strongestPillar,
+                selectedPillar: selectionBinding(result)
+            )
+            .frame(height: 360)
+
+            VStack(spacing: 4) {
                 HStack(spacing: 8) {
-                    TrendBadge(delta: result.systemTrend)
-                    Text("vs. last check-in")
+                    Text("Foundation · \(result.systemScore)")
                         .font(PillarsTypography.caption)
-                        .foregroundStyle(PillarsColors.tertiaryText)
+                        .foregroundStyle(PillarsColors.secondaryText)
+                    if checkIns.count > 1 { TrendBadge(delta: result.systemTrend) }
                 }
-            } else {
-                Text("Your baseline. Check in again tomorrow to see movement.")
-                    .font(PillarsTypography.caption)
-                    .foregroundStyle(PillarsColors.tertiaryText)
+                rhythmLine
             }
-            rhythmLine
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, PillarsSpacing.xs)
+    }
+
+    private func insightPanel(_ result: PillarScoreResult) -> some View {
+        let pillar = selectedPillar ?? result.weakestPillar
+        let score = PillarWebScore(pillar: pillar, score: result.score(for: pillar))
+        return SelectedPillarInsightPanel(
+            score: score,
+            onRestore: { appState.selectedTab = .moves },
+            onDetail: { detailPillar = pillar }
+        )
+    }
+
+    /// Selection defaults to the weakest pillar — the web leads with the weak point.
+    private func selectionBinding(_ result: PillarScoreResult) -> Binding<PillarType?> {
+        Binding(
+            get: { selectedPillar ?? result.weakestPillar },
+            set: { selectedPillar = $0 }
+        )
     }
 
     /// A calm continuity signal — not a streak, just a quiet rhythm.
@@ -147,29 +170,7 @@ struct TodayDashboardView: View {
         return Set(days).count
     }
 
-    // MARK: Highlights (weakest / strongest)
-
-    private func highlights(_ result: PillarScoreResult) -> some View {
-        let weakest = PillarHighlightCard(
-            role: "Asking for support",
-            pillar: result.weakestPillar,
-            score: result.score(for: result.weakestPillar),
-            trend: result.trend(for: result.weakestPillar)
-        )
-        let strongest = PillarHighlightCard(
-            role: "Holding firm",
-            pillar: result.strongestPillar,
-            score: result.score(for: result.strongestPillar),
-            trend: result.trend(for: result.strongestPillar)
-        )
-        // Side-by-side normally; stacks on narrow widths.
-        return ViewThatFits(in: .horizontal) {
-            HStack(spacing: PillarsSpacing.m) { weakest; strongest }
-            VStack(spacing: PillarsSpacing.m) { weakest; strongest }
-        }
-    }
-
-    // MARK: Moves
+    // MARK: Restorations
 
     private func movesSection(_ result: PillarScoreResult) -> some View {
         let recs = RestorationEngine.restorations(for: result)
@@ -186,24 +187,6 @@ struct TodayDashboardView: View {
                     isCompleted: RestorationLog.isCompleted(rec, in: actions),
                     onToggle: { RestorationLog.toggle(rec, in: actions, context: context) }
                 )
-            }
-        }
-    }
-
-    // MARK: Map
-
-    private func mapSection(_ result: PillarScoreResult) -> some View {
-        VStack(alignment: .leading, spacing: PillarsSpacing.m) {
-            SectionHeader(
-                title: "Pillar Map",
-                subtitle: "All eight, at a glance.",
-                actionTitle: "Expand",
-                action: { appState.selectedTab = .map }
-            )
-            PillarGlassCard {
-                PillarRadialMap(scores: result.pillarScores, showLabels: true)
-                    .frame(height: 320)
-                    .frame(maxWidth: .infinity)
             }
         }
     }
@@ -295,43 +278,6 @@ private struct NavCard: View {
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(PillarsColors.tertiaryText)
             }
-        }
-    }
-}
-
-/// One of the two "extremes" cards on the dashboard, framed in pillar-state language.
-private struct PillarHighlightCard: View {
-    let role: String
-    let pillar: PillarType
-    let score: Int
-    let trend: Int
-
-    private var state: PillarState { PillarState.from(score: score) }
-
-    var body: some View {
-        PillarGlassCard(padding: PillarsSpacing.m, highlight: state.isAskingForSupport) {
-            VStack(alignment: .leading, spacing: PillarsSpacing.s) {
-                Text(role).pillarsOverline(state.isAskingForSupport ? PillarsColors.gold.opacity(0.9) : PillarsColors.secondaryText)
-                HStack(spacing: PillarsSpacing.s) {
-                    PillarIconBadge(pillar: pillar, size: 40)
-                    VStack(alignment: .leading, spacing: 1) {
-                        Text(pillar.displayName)
-                            .font(PillarsTypography.titleSmall)
-                            .foregroundStyle(PillarsColors.primaryText)
-                            .minimumScaleFactor(0.7)
-                            .lineLimit(1)
-                        Text(state.label)
-                            .font(.system(size: 12, weight: .semibold))
-                            .foregroundStyle(state.color)
-                    }
-                }
-                HStack {
-                    ScoreDots(score: score, accent: pillar.color)
-                    Spacer(minLength: PillarsSpacing.xs)
-                    TrendBadge(delta: trend)
-                }
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 }

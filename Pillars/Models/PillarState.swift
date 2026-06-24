@@ -1,50 +1,58 @@
 import SwiftUI
 
-/// How a pillar is doing today, in human language. Deliberately avoids "low" / "bad" —
-/// a pillar is never failing, it's just *asking* for support.
-enum PillarState: String, CaseIterable, Hashable {
-    case firm
-    case steady
-    case asking
-    case quiet
-    case drained
+/// How a pillar is doing today, in human language. Numeric scores stay internal (1–5);
+/// the UI leans on these qualitative states instead of raw numbers.
+enum PillarState: String, CaseIterable, Codable, Hashable {
+    case drained   // 1
+    case quiet     // 2
+    case steady    // 3
+    case strong    // 4
+    case full      // 5
 
-    /// Maps a 1–5 score to a state.
     static func from(score: Int) -> PillarState {
         switch max(1, min(5, score)) {
-        case 5: return .firm
-        case 4: return .steady
-        case 3: return .asking
+        case 1: return .drained
         case 2: return .quiet
-        default: return .drained
+        case 3: return .steady
+        case 4: return .strong
+        default: return .full
         }
     }
 
-    var label: String { rawValue.prefix(1).uppercased() + rawValue.dropFirst() }
+    var displayName: String {
+        switch self {
+        case .drained: return "Drained"
+        case .quiet: return "Quiet"
+        case .steady: return "Steady"
+        case .strong: return "Strong"
+        case .full: return "Full"
+        }
+    }
+
+    /// Alias kept for existing call sites.
+    var label: String { displayName }
 
     /// A short, supportive read — no alarm, no diagnosis.
-    var blurb: String {
+    var supportCopy: String {
         switch self {
-        case .firm:    return "Holding strong."
-        case .steady:  return "Steady and reliable."
-        case .asking:  return "Asking for a little attention."
-        case .quiet:   return "Gone quiet lately."
-        case .drained: return "Running on empty — be gentle here."
+        case .drained: return "needs real support"
+        case .quiet: return "asking for care"
+        case .steady: return "holding shape"
+        case .strong: return "supporting you"
+        case .full: return "deeply resourced"
         }
     }
 
-    /// True when the pillar would benefit from a restoration today.
-    var isAskingForSupport: Bool {
-        self == .asking || self == .quiet || self == .drained
-    }
+    /// True when a restoration would meaningfully help (scores 1–2).
+    var isAskingForSupport: Bool { self == .quiet || self == .drained }
 
-    /// A calm, non-judgemental color. Warm gold for "needs you", soft green for strong.
+    /// A calm, non-judgemental color — warm gold for "needs you", soft green for resourced.
     var color: Color {
         switch self {
-        case .firm:    return PillarsColors.positive
-        case .steady:  return PillarsColors.goldSoft
-        case .asking:  return PillarsColors.gold
-        case .quiet:   return PillarsColors.secondaryText
+        case .full:    return PillarsColors.positive
+        case .strong:  return PillarsColors.goldSoft
+        case .steady:  return PillarsColors.secondaryText
+        case .quiet:   return PillarsColors.gold
         case .drained: return PillarsColors.caution
         }
     }
