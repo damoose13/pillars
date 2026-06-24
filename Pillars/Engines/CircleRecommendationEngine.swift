@@ -57,9 +57,7 @@ enum CircleRecommendationEngine {
                                 pillar: .connect, mode: .circle)
         case .purpose:
             return CircleAction(title: "Trade what mattered",
-                                subtitle: ContentPreferences.shared.spiritualRitualsEnabled
-                                    ? "Each names one moment that counted — a gratitude round, service, or reflection."
-                                    : "Each person names one moment that counted this week.",
+                                subtitle: "Each names one moment that counted this week — or do \(ContentPreferences.shared.purposeResetExamples) together.",
                                 pillar: .purpose, mode: .community)
         case .space, .mind:
             return CircleAction(title: "Hold a shared reset hour",

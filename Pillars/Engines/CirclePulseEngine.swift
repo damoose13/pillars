@@ -175,9 +175,7 @@ enum CirclePulseEngine {
         case .purpose:
             return [
                 CircleAction(title: "Plan a shared reflection",
-                             subtitle: ContentPreferences.shared.spiritualRitualsEnabled
-                                ? "A temple visit, gratitude round, service activity, or a reflection call."
-                                : "A gratitude round, a service activity, or a reflection call.",
+                             subtitle: "Together — \(ContentPreferences.shared.purposeResetExamples).",
                              pillar: .purpose, mode: .community),
                 CircleAction(title: "Trade one thing that mattered",
                              subtitle: "Each person names a single moment that counted this week.",

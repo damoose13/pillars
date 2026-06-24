@@ -32,6 +32,15 @@ final class AppState {
         }
     }
 
+    /// Opt-in to secular community framings (service, volunteering, group gatherings). Off by
+    /// default — independent of the spiritual toggle.
+    var communityContentEnabled: Bool {
+        didSet {
+            defaults.set(communityContentEnabled, forKey: Keys.community)
+            ContentPreferences.shared.communityContentEnabled = communityContentEnabled
+        }
+    }
+
     var selectedTab: AppTab = .today
 
     private let defaults: UserDefaults
@@ -42,9 +51,11 @@ final class AppState {
         let alias = defaults.string(forKey: Keys.purposeAlias) ?? ""
         self.purposeAlias = alias
         self.spiritualRitualsEnabled = defaults.bool(forKey: Keys.spiritual)
+        self.communityContentEnabled = defaults.bool(forKey: Keys.community)
         // `didSet` doesn't fire during init, so seed the resolvers explicitly.
         PillarNaming.shared.purposeAlias = alias.isEmpty ? nil : alias
         ContentPreferences.shared.spiritualRitualsEnabled = defaults.bool(forKey: Keys.spiritual)
+        ContentPreferences.shared.communityContentEnabled = defaults.bool(forKey: Keys.community)
     }
 
     func completeOnboarding() {
@@ -61,5 +72,6 @@ final class AppState {
         static let onboarding = "pillars.hasCompletedOnboarding"
         static let purposeAlias = "pillars.purposeAlias"
         static let spiritual = "pillars.spiritualRitualsEnabled"
+        static let community = "pillars.communityContentEnabled"
     }
 }

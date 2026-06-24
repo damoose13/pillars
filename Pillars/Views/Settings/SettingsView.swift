@@ -285,6 +285,24 @@ struct SettingsView: View {
                     }
                 }
                 .tint(PillarsColors.gold)
+
+                Divider().overlay(PillarsColors.cardBorder)
+
+                Toggle(isOn: Binding(
+                    get: { appState.communityContentEnabled },
+                    set: { appState.communityContentEnabled = $0 }
+                )) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Community content")
+                            .font(PillarsTypography.headline)
+                            .foregroundStyle(PillarsColors.primaryText)
+                        Text("Adds secular community framings — service, volunteering, group gatherings. Off by default; independent of spiritual rituals.")
+                            .font(PillarsTypography.caption)
+                            .foregroundStyle(PillarsColors.secondaryText)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+                .tint(PillarsColors.gold)
             }
         }
     }
