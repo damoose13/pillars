@@ -229,7 +229,7 @@ struct TodayDashboardView: View {
     // MARK: Restorations
 
     private func movesSection(_ result: PillarScoreResult) -> some View {
-        let recs = RestorationEngine.restorations(for: result)
+        let recs = RestorationEffectiveness.ordered(RestorationEngine.restorations(for: result), by: actions)
         return VStack(alignment: .leading, spacing: PillarsSpacing.m) {
             SectionHeader(
                 title: "Today's Restorations",
@@ -241,6 +241,7 @@ struct TodayDashboardView: View {
                 PillarMoveCard(
                     recommendation: rec,
                     isCompleted: RestorationLog.isCompleted(rec, in: actions),
+                    helpedBefore: RestorationEffectiveness.helpedBefore(rec, in: actions),
                     onToggle: { RestorationLog.toggle(rec, in: actions, context: context) }
                 )
             }

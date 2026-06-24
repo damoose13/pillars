@@ -10,7 +10,8 @@ struct TodayRestorationsView: View {
     @State private var reflectingRec: PillarRecommendation?
 
     var body: some View {
-        let recs = RestorationEngine.restorations(for: result)
+        // Surface what's helped this person before, first.
+        let recs = RestorationEffectiveness.ordered(RestorationEngine.restorations(for: result), by: actions)
         VStack(alignment: .leading, spacing: PillarsSpacing.m) {
             SectionHeader(title: "Today's Restorations",
                           subtitle: "One small action is enough to shift the day.")
@@ -18,6 +19,7 @@ struct TodayRestorationsView: View {
                 PillarMoveCard(
                     recommendation: rec,
                     isCompleted: RestorationLog.isCompleted(rec, in: actions),
+                    helpedBefore: RestorationEffectiveness.helpedBefore(rec, in: actions),
                     onToggle: {
                         let wasCompleted = RestorationLog.isCompleted(rec, in: actions)
                         RestorationLog.toggle(rec, in: actions, context: context)

@@ -8,6 +8,8 @@ import SwiftUI
 struct PillarMoveCard: View {
     let recommendation: PillarRecommendation
     var isCompleted: Bool
+    /// When this person's past reflection said this restoration helped, show a soft cue.
+    var helpedBefore: Bool = false
     var onToggle: () -> Void
 
     var body: some View {
@@ -49,6 +51,17 @@ struct PillarMoveCard: View {
                         }
                     }
                     .padding(.top, 1)
+
+                    if helpedBefore {
+                        Label("Helped you before", systemImage: "sparkle")
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundStyle(PillarsColors.gold)
+                            .padding(.horizontal, 9)
+                            .padding(.vertical, 5)
+                            .background(Capsule().fill(PillarsColors.gold.opacity(0.12)))
+                            .padding(.top, 3)
+                            .accessibilityLabel("This restoration helped you before.")
+                    }
                 }
 
                 Spacer(minLength: 0)
