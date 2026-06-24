@@ -29,10 +29,23 @@
 		};
 		0B0000000000000000000030 /* PillarsWidget */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				0B000000000000000000003D /* PBXFileSystemSynchronizedBuildFileExceptionSet */,
+			);
 			path = PillarsWidget;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		0B000000000000000000003D /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 0B0000000000000000000032 /* PillarsWidgetExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		0B0000000000000000000007 /* Frameworks */ = {
