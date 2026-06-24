@@ -39,6 +39,7 @@ struct CircleHomeView: View {
                         if entitlements.isEntitled(to: .circlePulse) {
                             CirclePulseView(pulse: pulse)
                             actionsSection
+                            CircleRecentSignals(wins: wins, members: members)
                         } else {
                             LockedFeatureCard(feature: .circlePulse) { showPaywall = true }
                         }

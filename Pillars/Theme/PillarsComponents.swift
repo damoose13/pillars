@@ -42,8 +42,10 @@ struct PrimaryButton: View {
     var icon: String? = nil
     var action: () -> Void
 
+    @State private var taps = 0
+
     var body: some View {
-        Button(action: action) {
+        Button(action: { taps += 1; action() }) {
             HStack(spacing: PillarsSpacing.xs) {
                 if let icon { Image(systemName: icon) }
                 Text(title)
@@ -64,6 +66,7 @@ struct PrimaryButton: View {
             .shadow(color: PillarsColors.gold.opacity(0.30), radius: 18, x: 0, y: 10)
         }
         .buttonStyle(PressableButtonStyle())
+        .sensoryFeedback(.impact(weight: .light), trigger: taps)
     }
 }
 

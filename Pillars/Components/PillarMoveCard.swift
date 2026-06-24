@@ -65,5 +65,6 @@ struct PillarMoveCard: View {
         }
         .opacity(isCompleted ? 0.66 : 1)
         .animation(.snappy(duration: 0.25), value: isCompleted)
+        .sensoryFeedback(.success, trigger: isCompleted)
     }
 }
