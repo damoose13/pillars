@@ -63,6 +63,10 @@ struct CirclePulse {
     let headline: String
     let trends: [CirclePillarTrend]
     let actions: [CircleAction]
+    /// A coarse, blur-only aggregate shape for the Pillar Web. Quantized to the same three
+    /// vague buckets the trend labels use (never raw scores), and empty for the `.duo` tier
+    /// where even an average could expose an individual.
+    let shape: [PillarWebScore]
 }
 
 /// Turns member signals into supportive, non-identifying Circle output. No AI, no
@@ -126,13 +130,27 @@ enum CirclePulseEngine {
 
         let actions = suggestedActions(weakest: weakest, isAlone: isAlone)
 
+        // Quantize each pillar to the same three buckets the labels reveal, rendered as a
+        // gentle 2/3/4 so the blurred web never spikes to 1 or 5. Duo tier shows nothing.
+        func bucket(_ value: Double) -> Int {
+            value < quiet ? 2 : (value < lifting ? 3 : 4)
+        }
+        let shape: [PillarWebScore]
+        switch tier {
+        case .duo:
+            shape = []
+        case .small, .group:
+            shape = PillarType.allCases.map { PillarWebScore(pillar: $0, score: bucket(avg($0))) }
+        }
+
         return CirclePulse(
             tier: tier,
             memberCount: count,
             isAlone: isAlone,
             headline: headline,
             trends: trends,
-            actions: actions
+            actions: actions,
+            shape: shape
         )
     }
 

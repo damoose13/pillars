@@ -18,6 +18,15 @@ struct CirclePulseView: View {
                     .lineSpacing(2)
                     .fixedSize(horizontal: false, vertical: true)
 
+                if !pulse.shape.isEmpty {
+                    DynamicPillarWebView(scores: pulse.shape, mode: .blurred)
+                        .frame(height: 168)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, PillarsSpacing.xs)
+                        .accessibilityElement(children: .ignore)
+                        .accessibilityLabel("A soft, blurred picture of the Circle's overall shape. No individual scores.")
+                }
+
                 if !pulse.trends.isEmpty {
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 128), spacing: 8)], alignment: .leading, spacing: 8) {
                         ForEach(pulse.trends) { trend in

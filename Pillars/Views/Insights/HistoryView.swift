@@ -117,19 +117,20 @@ struct HistoryView: View {
 private struct HistoryRow: View {
     let checkIn: DailyCheckIn
 
+    private var scores: [PillarWebScore] {
+        PillarType.allCases.map { PillarWebScore(pillar: $0, score: checkIn.score(for: $0)) }
+    }
+
     var body: some View {
         PillarGlassCard(padding: PillarsSpacing.m) {
-            VStack(alignment: .leading, spacing: PillarsSpacing.s) {
-                HStack(alignment: .firstTextBaseline) {
-                    VStack(alignment: .leading, spacing: 1) {
-                        Text(checkIn.date.formatted(.dateTime.weekday(.wide)))
-                            .font(PillarsTypography.headline)
-                            .foregroundStyle(PillarsColors.primaryText)
-                        Text(checkIn.date.formatted(.dateTime.month(.abbreviated).day().year()))
-                            .font(PillarsTypography.caption)
-                            .foregroundStyle(PillarsColors.tertiaryText)
-                    }
-                    Spacer()
+            HStack(spacing: PillarsSpacing.m) {
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(checkIn.date.formatted(.dateTime.weekday(.wide)))
+                        .font(PillarsTypography.headline)
+                        .foregroundStyle(PillarsColors.primaryText)
+                    Text(checkIn.date.formatted(.dateTime.month(.abbreviated).day().year()))
+                        .font(PillarsTypography.caption)
+                        .foregroundStyle(PillarsColors.tertiaryText)
                     HStack(alignment: .firstTextBaseline, spacing: 3) {
                         Text("\(checkIn.systemScore)")
                             .font(PillarsFont.serif(24, .semibold))
@@ -138,36 +139,16 @@ private struct HistoryRow: View {
                             .font(PillarsTypography.caption)
                             .foregroundStyle(PillarsColors.tertiaryText)
                     }
+                    .padding(.top, 4)
                 }
-                PillarMiniStrip(checkIn: checkIn)
+                Spacer(minLength: 0)
+                DynamicPillarWebView(scores: scores, mode: .mini)
+                    .frame(width: 72, height: 72)
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel("Pillar shape")
+                    .accessibilityValue(PillarType.allCases.map { "\($0.displayName) \(checkIn.score(for: $0))" }.joined(separator: ", "))
             }
         }
-    }
-}
-
-/// Eight slim bars — one per pillar, height by score, tinted by pillar color.
-private struct PillarMiniStrip: View {
-    let checkIn: DailyCheckIn
-
-    var body: some View {
-        HStack(alignment: .bottom, spacing: 6) {
-            ForEach(PillarType.allCases) { pillar in
-                let score = checkIn.score(for: pillar)
-                VStack(spacing: 5) {
-                    RoundedRectangle(cornerRadius: 3, style: .continuous)
-                        .fill(pillar.color.opacity(0.85))
-                        .frame(height: max(5, CGFloat(score) / 5 * 34))
-                        .frame(maxWidth: .infinity)
-                    Image(systemName: pillar.icon)
-                        .font(.system(size: 9, weight: .semibold))
-                        .foregroundStyle(PillarsColors.tertiaryText)
-                }
-            }
-        }
-        .frame(height: 52, alignment: .bottom)
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Pillar scores")
-        .accessibilityValue(PillarType.allCases.map { "\($0.displayName) \(checkIn.score(for: $0))" }.joined(separator: ", "))
     }
 }
 
