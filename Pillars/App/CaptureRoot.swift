@@ -9,6 +9,9 @@ struct CaptureRoot: View {
 
     var body: some View {
         switch route {
+        case "launch":
+            LaunchView()
+
         // Onboarding (normally hosted by OnboardingContainerView, which supplies the bg).
         case "welcome":
             WelcomeView(onBegin: {}).pillarsBackground()

@@ -70,6 +70,7 @@ jobs:
           }
           # Every page, in roughly app-flow order. Tabs use --screen (tab bar visible);
           # deeper pages use --route (rendered directly via CaptureRoot).
+          shoot 00_launch         "--uitest --route launch"
           shoot 01_welcome        "--uitest --route welcome"
           shoot 02_philosophy     "--uitest --route philosophy"
           shoot 03_baseline       "--uitest --route baseline"

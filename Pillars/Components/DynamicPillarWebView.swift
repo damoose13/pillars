@@ -12,6 +12,7 @@ struct DynamicPillarWebView: View {
     @Binding var selectedPillar: PillarType?
 
     @State private var pulse = false
+    @State private var entered = false
 
     init(scores: [PillarWebScore], mode: PillarWebMode = .standard,
          weakestPillar: PillarType? = nil, strongestPillar: PillarType? = nil,
@@ -52,16 +53,24 @@ struct DynamicPillarWebView: View {
                 centerContent
             }
             .blur(radius: mode == .blurred ? 9 : 0)
+            .scaleEffect(animatesEntrance ? (entered ? 1 : 0.95) : 1)
+            .opacity(animatesEntrance ? (entered ? 1 : 0) : 1)
         }
         .aspectRatio(1, contentMode: .fit)
         .contentShape(Rectangle())
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(accessibilitySummary)
         .onAppear {
+            if animatesEntrance {
+                withAnimation(.smooth(duration: 0.55)) { entered = true }
+            }
             guard mode != .background, mode != .blurred else { return }
             withAnimation(.easeInOut(duration: 1.7).repeatForever(autoreverses: true)) { pulse = true }
         }
     }
+
+    /// Hero-sized webs settle in on appear; small, decorative, and blurred webs render full.
+    private var animatesEntrance: Bool { mode == .hero || mode == .standard || mode == .weekly }
 
     /// Fraction of the *min side* used for the data ring. Kept small enough that external
     /// labels (placed at `radius + labelOffset`) stay inside the frame.
@@ -194,6 +203,7 @@ struct DynamicPillarWebView: View {
                     .font(PillarsFont.serif(mode == .hero ? 40 : 32, .semibold))
                     .foregroundStyle(PillarsColors.primaryText)
                     .monospacedDigit()
+                    .contentTransition(.numericText())
                 Text("Foundation")
                     .pillarsOverline()
             }
