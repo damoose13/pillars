@@ -124,7 +124,7 @@ struct TodayMovesView: View {
     }
 
     private var footerNote: some View {
-        Text("Moves refresh with each check-in. Completing one won't change your scores — it changes your day.")
+        Text("Restorations refresh with each check-in. Completing one won't change your scores — it changes your day.")
             .font(PillarsTypography.caption)
             .foregroundStyle(PillarsColors.tertiaryText)
             .multilineTextAlignment(.center)
