@@ -32,6 +32,7 @@ struct TodayDashboardView: View {
                         TodayFoundationHeader(result: result, isToday: hasCheckedInToday)
                         webHero(result)
                         insightPanel(result)
+                        ideasSection(result)
                         movesSection(result)
                         insightsSection
                     } else {
@@ -89,7 +90,11 @@ struct TodayDashboardView: View {
                 strongestPillar: result.strongestPillar,
                 selectedPillar: selectionBinding(result)
             )
-            .frame(height: 360)
+            .frame(height: 380)
+
+            Text("Tap any pillar to explore it.")
+                .font(PillarsTypography.caption)
+                .foregroundStyle(PillarsColors.tertiaryText)
 
             VStack(spacing: 4) {
                 HStack(spacing: 8) {
@@ -112,6 +117,57 @@ struct TodayDashboardView: View {
             onRestore: { appState.selectedTab = .moves },
             onDetail: { detailPillar = pillar }
         )
+    }
+
+    /// Ideas for whichever pillar is selected on the web — the "scroll down to explore it" payoff.
+    private func ideasSection(_ result: PillarScoreResult) -> some View {
+        let pillar = selectedPillar ?? result.weakestPillar
+        let tips = PillarGuidance.tips(for: pillar)
+        let ritual = RitualLibrary.anchor(for: pillar)
+        return VStack(alignment: .leading, spacing: PillarsSpacing.m) {
+            SectionHeader(title: "Ideas for \(pillar.displayName)", subtitle: "Small ways to support it today.")
+            PillarGlassCard {
+                VStack(alignment: .leading, spacing: PillarsSpacing.s) {
+                    ForEach(tips.indices, id: \.self) { i in
+                        HStack(alignment: .top, spacing: PillarsSpacing.s) {
+                            Circle().fill(pillar.color).frame(width: 6, height: 6).padding(.top, 7)
+                            Text(tips[i])
+                                .font(PillarsTypography.body)
+                                .foregroundStyle(PillarsColors.secondaryText)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                    }
+                }
+            }
+            if let ritual {
+                NavigationLink {
+                    RitualDetailView(ritual: ritual)
+                } label: {
+                    PillarGlassCard(padding: PillarsSpacing.m, highlight: true) {
+                        HStack(spacing: PillarsSpacing.m) {
+                            Image(systemName: "books.vertical")
+                                .font(.system(size: 18, weight: .medium))
+                                .foregroundStyle(PillarsColors.gold)
+                                .frame(width: 40, height: 40)
+                                .background(Circle().fill(PillarsColors.gold.opacity(0.12)))
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(ritual.name)
+                                    .font(PillarsTypography.headline)
+                                    .foregroundStyle(PillarsColors.primaryText)
+                                Text("A ritual for \(pillar.displayName)")
+                                    .font(PillarsTypography.caption)
+                                    .foregroundStyle(PillarsColors.secondaryText)
+                            }
+                            Spacer(minLength: 0)
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundStyle(PillarsColors.tertiaryText)
+                        }
+                    }
+                }
+                .buttonStyle(PressableButtonStyle())
+            }
+        }
     }
 
     /// Selection defaults to the weakest pillar — the web leads with the weak point.

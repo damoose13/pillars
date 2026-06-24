@@ -3,7 +3,7 @@ import Observation
 
 /// The main tabs of the app shell.
 enum AppTab: Hashable {
-    case today, map, moves, circle, settings
+    case today, moves, circle, settings
 }
 
 /// Lightweight, observable app-level state: onboarding status, the selected tab, and the

@@ -33,7 +33,6 @@ enum AppLaunch {
         guard let idx = CommandLine.arguments.firstIndex(of: "--screen"),
               idx + 1 < CommandLine.arguments.count else { return .today }
         switch CommandLine.arguments[idx + 1] {
-        case "map": return .map
         case "moves": return .moves
         case "circle": return .circle
         case "settings": return .settings

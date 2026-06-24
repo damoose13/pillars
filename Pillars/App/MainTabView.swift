@@ -33,11 +33,7 @@ struct MainTabView: View {
         TabView(selection: $appState.selectedTab) {
             TodayDashboardView()
                 .tag(AppTab.today)
-                .tabItem { Label("Today", systemImage: "gauge.medium") }
-
-            PillarMapView()
-                .tag(AppTab.map)
-                .tabItem { Label("Map", systemImage: "circle.hexagongrid") }
+                .tabItem { Label("Today", systemImage: "circle.hexagongrid") }
 
             TodayMovesView()
                 .tag(AppTab.moves)

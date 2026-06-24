@@ -79,7 +79,6 @@ jobs:
           shoot 05_daily_checkin  "--uitest --route checkin"
           shoot 06_weekly_review  "--uitest --route weekly"
           shoot 07_history        "--uitest --route history"
-          shoot 08_pillar_map     "--uitest --screen map"
           shoot 09_pillar_detail  "--uitest --route pillardetail"
           shoot 10_moves          "--uitest --screen moves"
           shoot 11_ritual_library "--uitest --route rituals"

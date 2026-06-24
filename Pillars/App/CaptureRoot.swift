@@ -35,9 +35,7 @@ struct CaptureRoot: View {
         case "history":
             NavigationStack { HistoryView() }
 
-        // Map flow.
-        case "map":
-            PillarMapView()
+        // Pillar detail.
         case "pillardetail":
             NavigationStack { PillarDetailView(pillar: .connect) }
 
