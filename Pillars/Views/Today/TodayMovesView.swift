@@ -20,6 +20,7 @@ struct TodayMovesView: View {
 
                     if let result {
                         let recs = RestorationEngine.restorations(for: result)
+                        weakestContext(result)
                         progressCard(recs)
                         VStack(spacing: PillarsSpacing.m) {
                             ForEach(recs) { rec in
@@ -90,6 +91,26 @@ struct TodayMovesView: View {
                 .foregroundStyle(PillarsColors.secondaryText)
                 .lineSpacing(3)
                 .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    /// Names the actual weakest pillar and its state, connecting Restore to the web on Today.
+    private func weakestContext(_ result: PillarScoreResult) -> some View {
+        let pillar = result.weakestPillar
+        let state = PillarState.from(score: result.score(for: pillar))
+        return HStack(spacing: PillarsSpacing.s) {
+            PillarIconBadge(pillar: pillar, size: 38)
+            VStack(alignment: .leading, spacing: 1) {
+                Text("\(pillar.displayName) is \(state.supportCopy)")
+                    .font(PillarsTypography.headline)
+                    .foregroundStyle(PillarsColors.primaryText)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
+                Text("These restorations lead with it.")
+                    .font(PillarsTypography.caption)
+                    .foregroundStyle(PillarsColors.secondaryText)
+            }
+            Spacer(minLength: 0)
         }
     }
 
