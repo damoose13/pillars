@@ -16,7 +16,7 @@ struct SharedResetFlowView: View {
 
     @State private var step: Step = .choose
     @State private var ritual: Ritual?
-    @State private var copied = false
+    @State private var draftMessage = ""
     @State private var helped: String?
 
     enum Step { case choose, invite, showUp, reflect, done }
@@ -62,7 +62,11 @@ struct SharedResetFlowView: View {
                 }
             }
             .onAppear {
-                if let preselected { ritual = preselected; step = .invite }
+                if let preselected {
+                    ritual = preselected
+                    draftMessage = message(for: preselected)
+                    step = .invite
+                }
             }
         }
     }
@@ -100,7 +104,11 @@ struct SharedResetFlowView: View {
             VStack(spacing: PillarsSpacing.s) {
                 ForEach(resets) { r in
                     Button {
-                        withAnimation(.smooth) { ritual = r; step = .invite }
+                        withAnimation(.smooth) {
+                            ritual = r
+                            draftMessage = message(for: r)
+                            step = .invite
+                        }
                     } label: {
                         PillarGlassCard(padding: PillarsSpacing.m) {
                             HStack(spacing: PillarsSpacing.m) {
@@ -143,48 +151,9 @@ struct SharedResetFlowView: View {
             }
 
             if let r {
-                PillarGlassCard {
-                    VStack(alignment: .leading, spacing: PillarsSpacing.m) {
-                        HStack(spacing: PillarsSpacing.s) {
-                            PillarIconBadge(pillar: r.pillar, size: 40)
-                            Text(r.name)
-                                .font(PillarsTypography.headline)
-                                .foregroundStyle(PillarsColors.primaryText)
-                        }
-                        Text("“\(message(for: r))”")
-                            .font(PillarsFont.serif(18, .regular))
-                            .foregroundStyle(PillarsColors.primaryText)
-                            .lineSpacing(3)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                }
-
-                HStack(spacing: PillarsSpacing.s) {
-                    Button { copy(message(for: r)) } label: {
-                        Label(copied ? "Copied" : "Copy", systemImage: copied ? "checkmark" : "doc.on.doc")
-                            .font(PillarsTypography.callout.weight(.semibold))
-                            .foregroundStyle(PillarsColors.primaryText)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 13)
-                            .background(Capsule().fill(Color.white.opacity(0.06)))
-                            .overlay(Capsule().strokeBorder(PillarsColors.cardBorder, lineWidth: 1))
-                    }
-                    .buttonStyle(PressableButtonStyle())
-
-                    ShareLink(item: message(for: r)) {
-                        Label("Share", systemImage: "square.and.arrow.up")
-                            .font(PillarsTypography.callout.weight(.semibold))
-                            .foregroundStyle(PillarsColors.background)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 13)
-                            .background(Capsule().fill(PillarsColors.gold))
-                    }
-                }
-
-                PrimaryButton(title: "I sent it", icon: "arrow.right") {
+                ResetMessageComposerView(ritual: r, message: $draftMessage) {
                     withAnimation(.smooth) { step = .showUp }
                 }
-                .padding(.top, PillarsSpacing.xs)
             }
         }
     }
@@ -308,13 +277,6 @@ struct SharedResetFlowView: View {
 
     private func message(for r: Ritual) -> String {
         r.shareMessage ?? "Want to do \(r.name) together this week? \(r.summary)"
-    }
-
-    private func copy(_ text: String) {
-        #if canImport(UIKit)
-        UIPasteboard.general.string = text
-        #endif
-        withAnimation { copied = true }
     }
 
     private func recordWin(_ r: Ritual, helped: String) {

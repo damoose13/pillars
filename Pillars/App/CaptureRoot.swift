@@ -77,6 +77,8 @@ struct CaptureRoot: View {
             SharedWinComposerView()
         case "sharedreset":
             SharedResetFlowView()
+        case "resetcompose":
+            SharedResetFlowView(preselected: RitualLibrary.sharedResets.first)
 
         // Monetization / settings.
         case "paywall":

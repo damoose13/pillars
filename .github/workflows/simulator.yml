@@ -92,6 +92,7 @@ jobs:
           shoot 14_privacy        "--uitest --route privacy"
           shoot 15_share_win      "--uitest --route sharedwin"
           shoot 16_shared_reset   "--uitest --route sharedreset"
+          shoot 16b_reset_compose "--uitest --route resetcompose"
           shoot 17_paywall        "--uitest --route paywall"
           shoot 18_settings       "--uitest --screen settings"
           ls -la screenshots
