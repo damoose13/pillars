@@ -7,6 +7,7 @@ struct SettingsView: View {
     @Environment(AppState.self) private var appState
     @Environment(EntitlementManager.self) private var entitlements
     @Environment(NotificationManager.self) private var notifications
+    @Environment(HealthKitManager.self) private var health
     @Environment(\.modelContext) private var context
 
     @Query private var checkIns: [DailyCheckIn]
@@ -37,6 +38,7 @@ struct SettingsView: View {
 
                 planSection
                 remindersSection
+                healthSection
                 purposeSection(appState: appState)
                 syncSection
                 privacySection
@@ -148,6 +150,53 @@ struct SettingsView: View {
                         .font(PillarsTypography.caption)
                         .foregroundStyle(PillarsColors.caution)
                         .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+        }
+    }
+
+    private var healthSection: some View {
+        SettingsSection(title: "Apple Health", icon: "heart.text.square") {
+            VStack(alignment: .leading, spacing: PillarsSpacing.m) {
+                Text(health.isAvailable
+                     ? "Optionally prefill your check-in from activity, sleep, and mindful minutes already in Apple Health. Read on your device only — never uploaded."
+                     : "Apple Health isn't available on this device.")
+                    .font(PillarsTypography.callout)
+                    .foregroundStyle(PillarsColors.secondaryText)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                if health.isAvailable {
+                    if health.isConnected {
+                        HStack(spacing: PillarsSpacing.s) {
+                            Image(systemName: "checkmark.seal.fill").foregroundStyle(PillarsColors.positive)
+                            Text("Connected — your check-in can prefill from Health.")
+                                .font(PillarsTypography.caption)
+                                .foregroundStyle(PillarsColors.secondaryText)
+                                .fixedSize(horizontal: false, vertical: true)
+                            Spacer(minLength: 0)
+                        }
+                        Button { health.disconnect() } label: {
+                            Text("Stop using Apple Health")
+                                .font(PillarsTypography.callout.weight(.semibold))
+                                .foregroundStyle(PillarsColors.secondaryText)
+                        }
+                        .buttonStyle(.plain)
+                    } else {
+                        Button {
+                            Task { await health.connect() }
+                        } label: {
+                            HStack(spacing: PillarsSpacing.xs) {
+                                Image(systemName: "heart.fill")
+                                Text("Connect Apple Health")
+                            }
+                            .font(PillarsTypography.headline)
+                            .foregroundStyle(PillarsColors.background)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 13)
+                            .background(Capsule().fill(PillarsColors.gold))
+                        }
+                        .buttonStyle(PressableButtonStyle())
+                    }
                 }
             }
         }
@@ -472,6 +521,7 @@ private struct ExportSheet: View {
         .environment(AppState())
         .environment(EntitlementManager())
         .environment(NotificationManager())
+        .environment(HealthKitManager())
         .modelContainer(PreviewData.container)
         .preferredColorScheme(.dark)
 }

@@ -8,6 +8,7 @@ struct DailyCheckInView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
     @Environment(AppState.self) private var appState
+    @Environment(HealthKitManager.self) private var health
 
     @Query(sort: \DailyCheckIn.date, order: .reverse) private var checkIns: [DailyCheckIn]
 
@@ -45,6 +46,10 @@ struct DailyCheckInView: View {
                     }
 
                     depthPicker
+
+                    if depth == .full && health.isConnected {
+                        healthPrefillButton
+                    }
 
                     if depth == .quick {
                         quickCard
@@ -137,6 +142,36 @@ struct DailyCheckInView: View {
         }
     }
 
+    /// Pull today's activity, sleep, and mindful minutes from Apple Health into the sliders.
+    @State private var isFillingFromHealth = false
+    private var healthPrefillButton: some View {
+        Button {
+            isFillingFromHealth = true
+            Task {
+                let suggestions = await health.todaySuggestions()
+                for (pillar, value) in suggestions { scores[pillar] = value }
+                isFillingFromHealth = false
+            }
+        } label: {
+            HStack(spacing: PillarsSpacing.s) {
+                Image(systemName: "heart.text.square")
+                    .foregroundStyle(PillarsColors.gold)
+                Text(isFillingFromHealth ? "Reading Apple Health…" : "Fill from Apple Health")
+                    .font(PillarsTypography.callout.weight(.semibold))
+                    .foregroundStyle(PillarsColors.primaryText)
+                Spacer(minLength: 0)
+                Image(systemName: "arrow.down.circle")
+                    .foregroundStyle(PillarsColors.tertiaryText)
+            }
+            .padding(.horizontal, PillarsSpacing.m)
+            .padding(.vertical, 12)
+            .background(Capsule().fill(Color.white.opacity(0.06)))
+            .overlay(Capsule().strokeBorder(PillarsColors.cardBorder, lineWidth: 1))
+        }
+        .buttonStyle(PressableButtonStyle())
+        .disabled(isFillingFromHealth)
+    }
+
     /// Seed the sliders from the most recent check-in so updating feels continuous.
     private func prefillIfNeeded() {
         guard !didPrefill, let latest = checkIns.first else { return }
@@ -165,6 +200,7 @@ struct DailyCheckInView: View {
 #Preview {
     DailyCheckInView()
         .environment(AppState())
+        .environment(HealthKitManager())
         .modelContainer(PreviewData.container)
         .preferredColorScheme(.dark)
 }

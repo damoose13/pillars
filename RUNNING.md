@@ -70,6 +70,18 @@ You don't even need a phone to try it:
 
 ---
 
+## Enable Apple Health (optional)
+
+Pillars can prefill your check-in from Apple Health (activity, sleep, mindful minutes), read
+on-device only. To turn it on you add the capability once in Xcode:
+
+1. Select the **Pillars** target → **Signing & Capabilities** → **+ Capability** → **HealthKit**.
+2. Build & run on a **real iPhone** (HealthKit is limited in the Simulator).
+3. In the app: **Settings → Apple Health → Connect Apple Health**, then in a **Full** check-in
+   tap **Fill from Apple Health**.
+
+The usage-description string is already configured; the capability is the only manual step.
+
 ## Good to know
 
 - **Free Apple ID = 7-day builds.** The app stops opening after ~7 days; just press **Run**

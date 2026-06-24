@@ -9,6 +9,8 @@ struct PillarsApp: App {
     @State private var entitlements = AppLaunch.makeEntitlements()
     /// Local daily check-in reminder.
     @State private var notifications = NotificationManager()
+    /// Optional, on-device Apple Health integration.
+    @State private var health = HealthKitManager()
 
     /// Local-first SwiftData store (in-memory + seeded under `--uitest`).
     let modelContainer: ModelContainer = AppLaunch.makeContainer()
@@ -19,6 +21,7 @@ struct PillarsApp: App {
                 .environment(appState)
                 .environment(entitlements)
                 .environment(notifications)
+                .environment(health)
                 .tint(PillarsColors.gold)
                 .preferredColorScheme(.dark)
                 // Allow larger text for accessibility, but clamp extremes so the editorial
