@@ -1,11 +1,35 @@
 import SwiftUI
+import SwiftData
 
 /// Browse the repeatable rituals — the practices a person can return to. A retention
-/// surface: not "today's tasks" but a library to build a life around.
+/// surface: not "today's tasks" but a library to build a life around. Rituals matching the
+/// pillar that's asking for support are marked "Recommended" and floated to the top.
 struct RitualLibraryView: View {
+    @Query(sort: \DailyCheckIn.date, order: .reverse) private var checkIns: [DailyCheckIn]
+
+    @State private var filter: PillarType?
+
+    private var result: PillarScoreResult? { PillarScoringEngine.result(from: checkIns) }
+
+    /// The pillars currently asking for support — their rituals get the "Recommended" tag.
+    private var recommended: Set<PillarType> {
+        guard let result else { return [] }
+        return [result.weakestPillar, result.secondWeakestPillar]
+    }
+
+    /// Rituals after the active filter, recommended ones first.
+    private var rituals: [Ritual] {
+        let base = RitualLibrary.all.filter { filter == nil || $0.pillar == filter }
+        return base.sorted { a, b in
+            let ra = recommended.contains(a.pillar), rb = recommended.contains(b.pillar)
+            if ra != rb { return ra }
+            return false
+        }
+    }
+
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: PillarsSpacing.xl) {
+            VStack(alignment: .leading, spacing: PillarsSpacing.l) {
                 VStack(alignment: .leading, spacing: PillarsSpacing.s) {
                     Text("The library")
                         .pillarsOverline(PillarsColors.gold.opacity(0.9))
@@ -20,14 +44,23 @@ struct RitualLibraryView: View {
                         .fixedSize(horizontal: false, vertical: true)
                 }
 
+                filterChips
+
                 VStack(spacing: PillarsSpacing.s) {
-                    ForEach(RitualLibrary.all) { ritual in
+                    ForEach(rituals) { ritual in
                         NavigationLink {
                             RitualDetailView(ritual: ritual)
                         } label: {
-                            RitualRow(ritual: ritual)
+                            RitualRow(ritual: ritual, recommended: recommended.contains(ritual.pillar))
                         }
                         .buttonStyle(.plain)
+                    }
+                    if rituals.isEmpty {
+                        Text("No rituals for this pillar yet.")
+                            .font(PillarsTypography.callout)
+                            .foregroundStyle(PillarsColors.secondaryText)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, PillarsSpacing.l)
                     }
                 }
             }
@@ -43,19 +76,58 @@ struct RitualLibraryView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(.hidden, for: .navigationBar)
     }
+
+    /// A horizontal row of pillar filters — "All" plus each pillar.
+    private var filterChips: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                chip(title: "All", color: PillarsColors.gold, active: filter == nil) { filter = nil }
+                ForEach(PillarType.allCases) { pillar in
+                    chip(title: pillar.displayName, color: pillar.color, active: filter == pillar) {
+                        filter = (filter == pillar) ? nil : pillar
+                    }
+                }
+            }
+            .padding(.vertical, 2)
+        }
+    }
+
+    private func chip(title: String, color: Color, active: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: { withAnimation(.snappy(duration: 0.2)) { action() } }) {
+            Text(title)
+                .font(PillarsTypography.caption.weight(.semibold))
+                .foregroundStyle(active ? PillarsColors.background : PillarsColors.primaryText)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 8)
+                .background(Capsule().fill(active ? color : Color.white.opacity(0.05)))
+                .overlay(Capsule().strokeBorder(active ? Color.clear : PillarsColors.cardBorder, lineWidth: 1))
+        }
+        .buttonStyle(PressableButtonStyle())
+    }
 }
 
 private struct RitualRow: View {
     let ritual: Ritual
+    var recommended: Bool = false
 
     var body: some View {
-        PillarGlassCard(padding: PillarsSpacing.m) {
+        PillarGlassCard(padding: PillarsSpacing.m, highlight: recommended) {
             HStack(spacing: PillarsSpacing.m) {
                 PillarIconBadge(pillar: ritual.pillar, size: 48)
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(ritual.name)
-                        .font(PillarsTypography.headline)
-                        .foregroundStyle(PillarsColors.primaryText)
+                    HStack(spacing: 6) {
+                        Text(ritual.name)
+                            .font(PillarsTypography.headline)
+                            .foregroundStyle(PillarsColors.primaryText)
+                        if recommended {
+                            Text("Recommended")
+                                .font(.system(size: 9, weight: .bold))
+                                .foregroundStyle(PillarsColors.background)
+                                .padding(.horizontal, 7)
+                                .padding(.vertical, 3)
+                                .background(Capsule().fill(PillarsColors.gold))
+                        }
+                    }
                     Text(ritual.summary)
                         .font(PillarsTypography.caption)
                         .foregroundStyle(PillarsColors.secondaryText)
