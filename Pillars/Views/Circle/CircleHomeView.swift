@@ -30,6 +30,11 @@ struct CircleHomeView: View {
         CirclePulseEngine.pulse(members: members, winsThisWeek: winsThisWeek)
     }
 
+    /// The privacy-safe morale read that drives the hero (group web, morale word, gap).
+    private var aggregate: CircleAggregate {
+        CircleMoraleEngine.aggregate(members: members)
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -37,7 +42,7 @@ struct CircleHomeView: View {
                     if hasCircle {
                         circleHeader
                         if entitlements.isEntitled(to: .circlePulse) {
-                            CirclePulseView(pulse: pulse)
+                            CircleMoraleView(aggregate: aggregate)
                             actionsSection
                             CircleRecentSignals(wins: wins, members: members)
                         } else {

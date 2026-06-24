@@ -24,11 +24,21 @@ final class CircleMember {
     var spaceScore: Int
     var purposeScore: Int
 
+    /// How much of themselves this member lets the Circle see. **Opt-in; default is private.**
+    /// Even at the most open level, the aggregate engines still blur per privacy tier — this
+    /// only ever *narrows* what could be shown, never widens past the size-based rules.
+    var visibilityLevel: VisibilityLevel = VisibilityLevel.privateLevel
+    /// The raw pillar identifiers this member chose to share, honored only when
+    /// `visibilityLevel == .selectedPillars`. Stored as strings for a clean lightweight migration.
+    var sharedPillarsRaw: [String] = []
+
     init(
         name: String,
         colorIndex: Int = 0,
         isYou: Bool = false,
         joinedAt: Date = .now,
+        visibilityLevel: VisibilityLevel = .privateLevel,
+        sharedPillarsRaw: [String] = [],
         bodyScore: Int = 3,
         fuelScore: Int = 3,
         sleepScore: Int = 3,
@@ -42,6 +52,8 @@ final class CircleMember {
         self.colorIndex = colorIndex
         self.isYou = isYou
         self.joinedAt = joinedAt
+        self.visibilityLevel = visibilityLevel
+        self.sharedPillarsRaw = sharedPillarsRaw
         self.bodyScore = bodyScore
         self.fuelScore = fuelScore
         self.sleepScore = sleepScore
@@ -50,6 +62,12 @@ final class CircleMember {
         self.connectScore = connectScore
         self.spaceScore = spaceScore
         self.purposeScore = purposeScore
+    }
+
+    /// The pillars this member has opted to share, decoded from `sharedPillarsRaw`.
+    var sharedPillars: [PillarType] {
+        get { sharedPillarsRaw.compactMap(PillarType.init(rawValue:)) }
+        set { sharedPillarsRaw = newValue.map(\.rawValue) }
     }
 
     func score(for pillar: PillarType) -> Int {
