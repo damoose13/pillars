@@ -8,6 +8,7 @@ struct PillarDetailView: View {
 
     @Query(sort: \DailyCheckIn.date, order: .reverse) private var checkIns: [DailyCheckIn]
     @Query(sort: \PillarAction.createdAt, order: .reverse) private var actions: [PillarAction]
+    @State private var showUpdate = false
 
     /// Up to seven most recent check-ins, oldest → newest, for the trend line.
     private var history: [DailyCheckIn] {
@@ -31,6 +32,7 @@ struct PillarDetailView: View {
             VStack(alignment: .leading, spacing: PillarsSpacing.xl) {
                 heading
                 statusCard
+                updateButton
                 if history.count > 1 { historyCard }
                 reflectionsCard
                 supportCard
@@ -46,6 +48,14 @@ struct PillarDetailView: View {
         .pillarsBackground()
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(.hidden, for: .navigationBar)
+        .sheet(isPresented: $showUpdate) { OnePillarUpdateView(pillar: pillar) }
+    }
+
+    /// Turn the read into an act: update just this pillar without a full check-in.
+    private var updateButton: some View {
+        SecondaryButton(title: "Update \(pillar.displayName) now", icon: "slider.horizontal.3") {
+            showUpdate = true
+        }
     }
 
     /// Turn the detail screen from "look" into "act": a ritual to anchor this pillar.

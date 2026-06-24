@@ -38,6 +38,8 @@ struct CaptureRoot: View {
         // Pillar detail.
         case "pillardetail":
             NavigationStack { PillarDetailView(pillar: .connect) }
+        case "pillarupdate":
+            OnePillarUpdateView(pillar: .connect)
 
         // Restore / rituals.
         case "moves":

@@ -80,6 +80,7 @@ jobs:
           shoot 06_weekly_review  "--uitest --route weekly"
           shoot 07_history        "--uitest --route history"
           shoot 09_pillar_detail  "--uitest --route pillardetail"
+          shoot 09b_pillar_update "--uitest --route pillarupdate"
           shoot 10_moves          "--uitest --screen moves"
           shoot 11_ritual_library "--uitest --route rituals"
           shoot 12_ritual_detail  "--uitest --route ritualdetail"
