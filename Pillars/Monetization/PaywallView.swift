@@ -48,7 +48,7 @@ struct PaywallView: View {
             }
             .scrollIndicators(.hidden)
             .pillarsBackground()
-            .navigationTitle("Plans")
+            .navigationTitle(allOwned ? "Manage plans" : "Plans")
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {
@@ -66,17 +66,21 @@ struct PaywallView: View {
 
     // MARK: Header
 
+    private var allOwned: Bool { entitlements.owns(.plus) && entitlements.owns(.circlePass) }
+
     private var headerView: some View {
         VStack(spacing: PillarsSpacing.s) {
-            Image(systemName: "circle.hexagongrid.fill")
+            Image(systemName: allOwned ? "checkmark.seal.fill" : "circle.hexagongrid.fill")
                 .font(.system(size: 40, weight: .light))
-                .foregroundStyle(PillarsColors.gold)
-            Text("Support the whole structure.")
+                .foregroundStyle(allOwned ? PillarsColors.positive : PillarsColors.gold)
+            Text(allOwned ? "You're fully supported." : "Support the whole structure.")
                 .font(PillarsTypography.display)
                 .foregroundStyle(PillarsColors.primaryText)
                 .multilineTextAlignment(.center)
                 .minimumScaleFactor(0.8)
-            Text("The daily loop is always free. Upgrade only if you want more depth or a Circle.")
+            Text(allOwned
+                 ? "You have every plan. Change or cancel anytime in the App Store — your data stays yours either way."
+                 : "The daily loop is always free. Upgrade only if you want more depth or a Circle.")
                 .font(PillarsTypography.body)
                 .foregroundStyle(PillarsColors.secondaryText)
                 .multilineTextAlignment(.center)

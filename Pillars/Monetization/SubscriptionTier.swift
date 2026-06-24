@@ -107,10 +107,10 @@ enum ProductCatalog {
     }
 
     static let mock: [MockProduct] = [
-        MockProduct(id: plusMonthly, tier: .plus, displayPrice: "$4.99", period: "month", isYearly: false),
-        MockProduct(id: plusYearly, tier: .plus, displayPrice: "$39.99", period: "year", isYearly: true),
-        MockProduct(id: circleMonthly, tier: .circlePass, displayPrice: "$6.99", period: "month", isYearly: false),
-        MockProduct(id: circleYearly, tier: .circlePass, displayPrice: "$59.99", period: "year", isYearly: true)
+        MockProduct(id: plusMonthly, tier: .plus, displayPrice: "$7.99", period: "month", isYearly: false),
+        MockProduct(id: plusYearly, tier: .plus, displayPrice: "$59.99", period: "year", isYearly: true),
+        MockProduct(id: circleMonthly, tier: .circlePass, displayPrice: "$14.99", period: "month", isYearly: false),
+        MockProduct(id: circleYearly, tier: .circlePass, displayPrice: "$99.99", period: "year", isYearly: true)
     ]
 
     static func mockProducts(for tier: SubscriptionTier) -> [MockProduct] {
