@@ -17,8 +17,17 @@ struct SharedResetFlowView: View {
     @State private var step: Step = .choose
     @State private var ritual: Ritual?
     @State private var copied = false
+    @State private var helped: String?
 
-    enum Step { case choose, invite, showUp, done }
+    enum Step { case choose, invite, showUp, reflect, done }
+
+    /// A private read of whether the reset helped — tunes future suggestions, never shared.
+    private struct Reflection: Hashable { let label: String; let icon: String; let color: Color }
+    private let reflections = [
+        Reflection(label: "Yes — that helped", icon: "heart.fill", color: PillarsColors.positive),
+        Reflection(label: "A little", icon: "leaf.fill", color: PillarsColors.gold),
+        Reflection(label: "Not really — and that's okay", icon: "cloud.fill", color: PillarsColors.secondaryText),
+    ]
 
     private var resets: [Ritual] { RitualLibrary.sharedResets }
 
@@ -31,6 +40,7 @@ struct SharedResetFlowView: View {
                     case .choose: chooseStep
                     case .invite: inviteStep
                     case .showUp: showUpStep
+                    case .reflect: reflectStep
                     case .done: doneStep
                     }
                 }
@@ -71,7 +81,7 @@ struct SharedResetFlowView: View {
     }
 
     private var stageIndex: Int {
-        switch step { case .choose: return 0; case .invite: return 1; case .showUp, .done: return 2 }
+        switch step { case .choose: return 0; case .invite: return 1; case .showUp, .reflect, .done: return 2 }
     }
 
     // MARK: Step 1 — choose
@@ -213,7 +223,9 @@ struct SharedResetFlowView: View {
                         }
                     }
                 }
-                PrimaryButton(title: "I showed up", icon: "checkmark") { recordWin(r) }
+                PrimaryButton(title: "I showed up", icon: "checkmark") {
+                    withAnimation(.smooth) { step = .reflect }
+                }
                 Text("This shares a win, not a score. Nothing else is revealed.")
                     .font(PillarsTypography.caption)
                     .foregroundStyle(PillarsColors.tertiaryText)
@@ -223,7 +235,49 @@ struct SharedResetFlowView: View {
         }
     }
 
-    // MARK: Step 4 — done
+    // MARK: Step 4 — reflect
+
+    private var reflectStep: some View {
+        let r = ritual
+        return VStack(alignment: .leading, spacing: PillarsSpacing.l) {
+            VStack(alignment: .leading, spacing: PillarsSpacing.s) {
+                Text("Did it help?")
+                    .font(PillarsTypography.display)
+                    .foregroundStyle(PillarsColors.primaryText)
+                Text("One quiet read, just for you. It tunes what Pillars suggests next — it's never shared with your Circle.")
+                    .font(PillarsTypography.body)
+                    .foregroundStyle(PillarsColors.secondaryText)
+                    .lineSpacing(2)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            VStack(spacing: PillarsSpacing.s) {
+                ForEach(reflections, id: \.self) { option in
+                    Button {
+                        if let r { recordWin(r, helped: option.label) }
+                    } label: {
+                        PillarGlassCard(padding: PillarsSpacing.m) {
+                            HStack(spacing: PillarsSpacing.m) {
+                                Image(systemName: option.icon)
+                                    .font(.system(size: 18, weight: .medium))
+                                    .foregroundStyle(option.color)
+                                    .frame(width: 28)
+                                Text(option.label)
+                                    .font(PillarsTypography.headline)
+                                    .foregroundStyle(PillarsColors.primaryText)
+                                Spacer(minLength: 0)
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 13, weight: .semibold))
+                                    .foregroundStyle(PillarsColors.tertiaryText)
+                            }
+                        }
+                    }
+                    .buttonStyle(PressableButtonStyle())
+                }
+            }
+        }
+    }
+
+    // MARK: Step 5 — done
 
     private var doneStep: some View {
         VStack(spacing: PillarsSpacing.l) {
@@ -263,7 +317,9 @@ struct SharedResetFlowView: View {
         withAnimation { copied = true }
     }
 
-    private func recordWin(_ r: Ritual) {
+    private func recordWin(_ r: Ritual, helped: String) {
+        self.helped = helped
+        // The shared win carries no private reflection — only that you showed up together.
         let win = SharedWin(
             title: r.name,
             pillar: r.pillar,
@@ -271,9 +327,10 @@ struct SharedResetFlowView: View {
             authorName: "You"
         )
         context.insert(win)
-        // Recording the effect: a completed restoration also logs to the personal loop.
+        // Recording the effect: a completed restoration also logs to the personal loop, where
+        // the private reflection lives (never shared with the Circle).
         let action = PillarAction(
-            title: r.name, subtitle: r.summary, pillar: r.pillar,
+            title: r.name, subtitle: "\(r.summary) · Reflection: \(helped)", pillar: r.pillar,
             isCompleted: true, createdAt: .now, completedAt: .now
         )
         context.insert(action)
