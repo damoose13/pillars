@@ -17,9 +17,9 @@ struct WelcomeView: View {
                 Spacer(minLength: PillarsSpacing.l)
 
                 ZStack {
-                    PillarRadialMap(scores: motif, showLabels: false)
+                    DynamicPillarWebView(scores: PillarWebScore.all(from: motif), mode: .background)
                         .frame(width: min(geo.size.width * 0.9, 360), height: min(geo.size.width * 0.9, 360))
-                        .opacity(0.28)
+                        .opacity(0.5)
                         .blur(radius: 1.5)
 
                     VStack(spacing: PillarsSpacing.m) {

@@ -75,27 +75,40 @@ struct WeeklyReviewView: View {
         .opacity(0.9)
     }
 
+    /// The week's average shape, as the Pillar Web — the same object as Today, read over seven days.
     private func summaryCard(_ review: WeeklyReview) -> some View {
         PillarGlassCard {
-            HStack(spacing: PillarsSpacing.l) {
-                PillarScoreOrb(score: review.averageSystemScore, caption: "Weekly Avg", size: 132, lineWidth: 10)
-                VStack(alignment: .leading, spacing: PillarsSpacing.s) {
-                    HStack(spacing: 8) {
-                        TrendBadge(delta: review.systemTrend)
-                        Text("across the week")
-                            .font(PillarsTypography.caption)
-                            .foregroundStyle(PillarsColors.tertiaryText)
-                    }
-                    Text("\(review.checkInCount) check-ins")
-                        .font(PillarsTypography.headline)
-                        .foregroundStyle(PillarsColors.primaryText)
-                    Text("A steady week holds its shape more than it climbs. Movement in either direction is information, not a verdict.")
+            VStack(spacing: PillarsSpacing.m) {
+                DynamicPillarWebView(
+                    scores: weeklyScores(review),
+                    mode: .weekly,
+                    weakestPillar: review.weakestPillar,
+                    strongestPillar: review.strongestPillar
+                )
+                .frame(height: 320)
+                .frame(maxWidth: .infinity)
+
+                HStack(spacing: PillarsSpacing.s) {
+                    TrendBadge(delta: review.systemTrend)
+                    Text("\(review.checkInCount) check-ins across the week")
                         .font(PillarsTypography.caption)
                         .foregroundStyle(PillarsColors.secondaryText)
-                        .fixedSize(horizontal: false, vertical: true)
+                    Spacer(minLength: 0)
                 }
-                Spacer(minLength: 0)
+
+                Text("A steady week holds its shape more than it climbs. Movement in either direction is information, not a verdict.")
+                    .font(PillarsTypography.caption)
+                    .foregroundStyle(PillarsColors.secondaryText)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
+        }
+    }
+
+    /// Each pillar's weekly average, rounded to the 1–5 scale the web expects.
+    private func weeklyScores(_ review: WeeklyReview) -> [PillarWebScore] {
+        PillarType.allCases.map { pillar in
+            PillarWebScore(pillar: pillar, score: Int(review.average(for: pillar).rounded()))
         }
     }
 

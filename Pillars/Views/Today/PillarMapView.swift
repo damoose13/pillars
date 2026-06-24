@@ -6,6 +6,9 @@ import SwiftData
 struct PillarMapView: View {
     @Query(sort: \DailyCheckIn.date, order: .reverse) private var checkIns: [DailyCheckIn]
 
+    @State private var selectedPillar: PillarType?
+    @State private var detailPillar: PillarType?
+
     private var result: PillarScoreResult? { PillarScoringEngine.result(from: checkIns) }
 
     var body: some View {
@@ -15,24 +18,23 @@ struct PillarMapView: View {
                     header
 
                     if let result {
-                        PillarGlassCard {
-                            PillarRadialMap(scores: result.pillarScores, showLabels: true)
-                                .frame(height: 360)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, PillarsSpacing.s)
-                        }
+                        webCard(result)
+                        insightPanel(result)
 
                         VStack(alignment: .leading, spacing: PillarsSpacing.m) {
                             SectionHeader(title: "By need", subtitle: "Weakest first — where attention pays off most.")
                             VStack(spacing: PillarsSpacing.s) {
                                 ForEach(result.pillarsByNeed) { pillar in
-                                    NavigationLink {
-                                        PillarDetailView(pillar: pillar)
+                                    Button {
+                                        withAnimation(.spring(response: 0.35, dampingFraction: 0.78)) {
+                                            selectedPillar = pillar
+                                        }
                                     } label: {
                                         PillarListRow(
                                             pillar: pillar,
                                             score: result.score(for: pillar),
-                                            trend: result.trend(for: pillar)
+                                            trend: result.trend(for: pillar),
+                                            isSelected: (selectedPillar ?? result.weakestPillar) == pillar
                                         )
                                     }
                                     .buttonStyle(.plain)
@@ -53,7 +55,40 @@ struct PillarMapView: View {
             .pillarsBackground()
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)
+            .navigationDestination(item: $detailPillar) { PillarDetailView(pillar: $0) }
         }
+    }
+
+    /// The interactive web — tap a pillar to select it; the list and insight panel follow.
+    private func webCard(_ result: PillarScoreResult) -> some View {
+        PillarGlassCard {
+            DynamicPillarWebView(
+                scores: PillarWebScore.all(from: result.pillarScores),
+                mode: .standard,
+                weakestPillar: result.weakestPillar,
+                strongestPillar: result.strongestPillar,
+                selectedPillar: selectionBinding(result)
+            )
+            .frame(height: 340)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, PillarsSpacing.s)
+        }
+    }
+
+    private func insightPanel(_ result: PillarScoreResult) -> some View {
+        let pillar = selectedPillar ?? result.weakestPillar
+        return SelectedPillarInsightPanel(
+            score: PillarWebScore(pillar: pillar, score: result.score(for: pillar)),
+            onRestore: { detailPillar = pillar },
+            onDetail: { detailPillar = pillar }
+        )
+    }
+
+    private func selectionBinding(_ result: PillarScoreResult) -> Binding<PillarType?> {
+        Binding(
+            get: { selectedPillar ?? result.weakestPillar },
+            set: { selectedPillar = $0 }
+        )
     }
 
     private var header: some View {
@@ -89,14 +124,15 @@ struct PillarMapView: View {
     }
 }
 
-/// A tappable pillar row used in the map list.
+/// A tappable pillar row used in the map list. Selecting it highlights the matching web point.
 private struct PillarListRow: View {
     let pillar: PillarType
     let score: Int
     let trend: Int
+    var isSelected: Bool = false
 
     var body: some View {
-        PillarGlassCard(padding: PillarsSpacing.m) {
+        PillarGlassCard(padding: PillarsSpacing.m, highlight: isSelected) {
             HStack(spacing: PillarsSpacing.m) {
                 PillarIconBadge(pillar: pillar)
                 VStack(alignment: .leading, spacing: 5) {
@@ -112,9 +148,6 @@ private struct PillarListRow: View {
                 }
                 Spacer(minLength: PillarsSpacing.xs)
                 TrendBadge(delta: trend)
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(PillarsColors.tertiaryText)
             }
         }
     }
