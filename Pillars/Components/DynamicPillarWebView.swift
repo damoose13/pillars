@@ -114,9 +114,14 @@ struct DynamicPillarWebView: View {
 
     private func stroke(center: CGPoint, radius: CGFloat) -> some View {
         PolygonShape(points: polygon(center: center, radius: radius, values: ordered.map(\.normalized)))
-            .stroke(PillarsColors.gold.opacity(mode == .background ? 0.28 : 0.78),
-                    style: StrokeStyle(lineWidth: mode == .hero ? 2.2 : 1.6, lineJoin: .round))
-            .shadow(color: PillarsColors.gold.opacity(mode == .hero ? 0.30 : 0.12), radius: 10)
+            .stroke(
+                LinearGradient(colors: [PillarsColors.goldSoft, PillarsColors.gold],
+                               startPoint: .top, endPoint: .bottom),
+                style: StrokeStyle(lineWidth: mode == .hero ? 2.4 : 1.6, lineJoin: .round)
+            )
+            .shadow(color: PillarsColors.gold.opacity(mode == .hero ? 0.40 : 0.14),
+                    radius: mode == .hero ? 14 : 8)
+            .opacity(mode == .background ? 0.30 : 0.92)
     }
 
     private func points(center: CGPoint, radius: CGFloat) -> some View {
