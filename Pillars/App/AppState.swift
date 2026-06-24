@@ -24,6 +24,14 @@ final class AppState {
         }
     }
 
+    /// Opt-in to spiritual practices (temple, prayer, seva). Off by default — secular-first.
+    var spiritualRitualsEnabled: Bool {
+        didSet {
+            defaults.set(spiritualRitualsEnabled, forKey: Keys.spiritual)
+            ContentPreferences.shared.spiritualRitualsEnabled = spiritualRitualsEnabled
+        }
+    }
+
     var selectedTab: AppTab = .today
 
     private let defaults: UserDefaults
@@ -33,8 +41,10 @@ final class AppState {
         self.hasCompletedOnboarding = defaults.bool(forKey: Keys.onboarding)
         let alias = defaults.string(forKey: Keys.purposeAlias) ?? ""
         self.purposeAlias = alias
-        // `didSet` doesn't fire during init, so seed the resolver explicitly.
+        self.spiritualRitualsEnabled = defaults.bool(forKey: Keys.spiritual)
+        // `didSet` doesn't fire during init, so seed the resolvers explicitly.
         PillarNaming.shared.purposeAlias = alias.isEmpty ? nil : alias
+        ContentPreferences.shared.spiritualRitualsEnabled = defaults.bool(forKey: Keys.spiritual)
     }
 
     func completeOnboarding() {
@@ -50,5 +60,6 @@ final class AppState {
     private enum Keys {
         static let onboarding = "pillars.hasCompletedOnboarding"
         static let purposeAlias = "pillars.purposeAlias"
+        static let spiritual = "pillars.spiritualRitualsEnabled"
     }
 }

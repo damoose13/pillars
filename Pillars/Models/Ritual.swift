@@ -14,6 +14,8 @@ struct Ritual: Identifiable, Hashable {
     let steps: [String]
     /// A ready-to-send invitation, for shareable rituals used in the Shared Reset flow.
     let shareMessage: String?
+    /// Temple/prayer/seva practices — only surfaced when the user opts into spiritual content.
+    var spiritual: Bool = false
 
     /// Express the ritual as a one-off restoration for today's moves.
     func asRestoration() -> PillarRecommendation {

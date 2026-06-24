@@ -100,8 +100,8 @@ struct WeeklyReviewView: View {
     }
 
     private func highlightsRow(_ review: WeeklyReview) -> some View {
-        let strongest = MiniStat(label: "Strongest", pillar: review.strongestPillar, value: review.average(for: review.strongestPillar))
-        let weakest = MiniStat(label: "Needs support", pillar: review.weakestPillar, value: review.average(for: review.weakestPillar), emphasized: true)
+        let strongest = MiniStat(label: "Holding firm", pillar: review.strongestPillar, value: review.average(for: review.strongestPillar))
+        let weakest = MiniStat(label: "Asking for support", pillar: review.weakestPillar, value: review.average(for: review.weakestPillar), emphasized: true)
         let improved: AnyView = {
             if let p = review.mostImprovedPillar {
                 return AnyView(MiniStat(label: "Most improved", pillar: p, value: review.average(for: p)))

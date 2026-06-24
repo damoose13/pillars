@@ -25,8 +25,8 @@ struct TodayMovesView: View {
                             ForEach(recs) { rec in
                                 PillarMoveCard(
                                     recommendation: rec,
-                                    isCompleted: isDone(rec),
-                                    onToggle: { toggle(rec) }
+                                    isCompleted: RestorationLog.isCompleted(rec, in: actions),
+                                    onToggle: { RestorationLog.toggle(rec, in: actions, context: context) }
                                 )
                             }
                         }
@@ -82,10 +82,10 @@ struct TodayMovesView: View {
         VStack(alignment: .leading, spacing: PillarsSpacing.s) {
             Text("Today")
                 .pillarsOverline(PillarsColors.gold.opacity(0.9))
-            Text("Your three moves.")
+            Text("Restore.")
                 .font(PillarsTypography.display)
                 .foregroundStyle(PillarsColors.primaryText)
-            Text("You don't need to fix everything. Start with one — the pillar that needs support first — and let the rest follow.")
+            Text("You don't need to fix everything. Start with one — the pillar asking for support — and let the rest follow.")
                 .font(PillarsTypography.body)
                 .foregroundStyle(PillarsColors.secondaryText)
                 .lineSpacing(3)
@@ -94,7 +94,7 @@ struct TodayMovesView: View {
     }
 
     private func progressCard(_ recs: [PillarRecommendation]) -> some View {
-        let done = recs.filter { isDone($0) }.count
+        let done = recs.filter { RestorationLog.isCompleted($0, in: actions) }.count
         return PillarGlassCard(padding: PillarsSpacing.m) {
             HStack(spacing: PillarsSpacing.m) {
                 VStack(alignment: .leading, spacing: 4) {
@@ -150,24 +150,6 @@ struct TodayMovesView: View {
             }
             .frame(maxWidth: .infinity)
         }
-    }
-
-    private func isDone(_ rec: PillarRecommendation) -> Bool {
-        actions.contains { $0.matches(rec) && $0.isCompleted }
-    }
-
-    private func toggle(_ rec: PillarRecommendation) {
-        if let existing = actions.first(where: { $0.matches(rec) }) {
-            existing.isCompleted.toggle()
-            existing.completedAt = existing.isCompleted ? .now : nil
-        } else {
-            let action = PillarAction(
-                title: rec.title, subtitle: rec.subtitle, pillar: rec.pillar,
-                isCompleted: true, createdAt: .now, completedAt: .now
-            )
-            context.insert(action)
-        }
-        try? context.save()
     }
 }
 

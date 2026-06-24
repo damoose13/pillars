@@ -39,7 +39,7 @@ struct CaptureRoot: View {
         case "rituals":
             NavigationStack { RitualLibraryView() }
         case "ritualdetail":
-            NavigationStack { RitualDetailView(ritual: RitualLibrary.all[3]) }
+            NavigationStack { RitualDetailView(ritual: RitualLibrary.ritual(id: "gratitude-circle") ?? RitualLibrary.all[0]) }
 
         // Circle flow.
         case "circle":

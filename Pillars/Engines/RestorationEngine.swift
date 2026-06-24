@@ -13,6 +13,7 @@ enum RestorationEngine {
 
     static func restorations(for result: PillarScoreResult) -> [PillarRecommendation] {
         let scores = result.pillarScores
+        let spiritual = ContentPreferences.shared.spiritualRitualsEnabled
         func asking(_ pillar: PillarType) -> Bool { (scores[pillar] ?? 3) <= supportThreshold }
 
         var out: [PillarRecommendation] = []
@@ -21,7 +22,9 @@ enum RestorationEngine {
         if asking(.connect) && asking(.purpose) {
             out.append(.init(
                 title: "Plan a shared reset",
-                subtitle: "A temple visit, a shared meal, or a slow reflection walk with someone you trust.",
+                subtitle: spiritual
+                    ? "A temple visit, a shared meal, or a slow reflection walk with someone you trust."
+                    : "A shared meal, a walk, or a quiet hour with someone you trust.",
                 pillar: .connect, mode: .onePerson, estimatedMinutes: 45, emotionalTone: .connecting, shareable: true))
         }
         if asking(.sleep) && asking(.mind) {
@@ -53,7 +56,9 @@ enum RestorationEngine {
         if asking(.purpose) {
             out.append(.init(
                 title: "Return to what matters",
-                subtitle: "Five minutes to reflect, pray, or write the one thing that counts today.",
+                subtitle: spiritual
+                    ? "Five minutes to reflect, pray, or write the one thing that counts today."
+                    : "Five minutes to reflect, journal, or name the one thing that counts today.",
                 pillar: .purpose, mode: .solo, estimatedMinutes: 5, emotionalTone: .reflective, shareable: false))
         }
         if asking(.fuel) {

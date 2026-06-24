@@ -30,8 +30,8 @@ struct TodayDashboardView: View {
                         TodayFoundationHeader(result: result, isToday: hasCheckedInToday)
                         orbSection(result)
                         highlights(result)
-                        movesSection(result)
                         mapSection(result)
+                        movesSection(result)
                         insightsSection
                     } else {
                         emptyState
@@ -157,7 +157,7 @@ struct TodayDashboardView: View {
             trend: result.trend(for: result.weakestPillar)
         )
         let strongest = PillarHighlightCard(
-            role: "Carrying you today",
+            role: "Holding firm",
             pillar: result.strongestPillar,
             score: result.score(for: result.strongestPillar),
             trend: result.trend(for: result.strongestPillar)
@@ -175,7 +175,7 @@ struct TodayDashboardView: View {
         let recs = RestorationEngine.restorations(for: result)
         return VStack(alignment: .leading, spacing: PillarsSpacing.m) {
             SectionHeader(
-                title: "Today's Moves",
+                title: "Today's Restorations",
                 subtitle: "Small restoration beats total overhaul.",
                 actionTitle: "All",
                 action: { appState.selectedTab = .moves }
@@ -183,8 +183,8 @@ struct TodayDashboardView: View {
             ForEach(recs) { rec in
                 PillarMoveCard(
                     recommendation: rec,
-                    isCompleted: isDone(rec),
-                    onToggle: { toggle(rec) }
+                    isCompleted: RestorationLog.isCompleted(rec, in: actions),
+                    onToggle: { RestorationLog.toggle(rec, in: actions, context: context) }
                 )
             }
         }
@@ -201,8 +201,8 @@ struct TodayDashboardView: View {
                 action: { appState.selectedTab = .map }
             )
             PillarGlassCard {
-                PillarRadialMap(scores: result.pillarScores, showLabels: false)
-                    .frame(height: 230)
+                PillarRadialMap(scores: result.pillarScores, showLabels: true)
+                    .frame(height: 320)
                     .frame(maxWidth: .infinity)
             }
         }
@@ -263,26 +263,6 @@ struct TodayDashboardView: View {
             .frame(maxWidth: .infinity)
         }
         .padding(.top, PillarsSpacing.xxl)
-    }
-
-    // MARK: Completion state
-
-    private func isDone(_ rec: PillarRecommendation) -> Bool {
-        actions.contains { $0.matches(rec) && $0.isCompleted }
-    }
-
-    private func toggle(_ rec: PillarRecommendation) {
-        if let existing = actions.first(where: { $0.matches(rec) }) {
-            existing.isCompleted.toggle()
-            existing.completedAt = existing.isCompleted ? .now : nil
-        } else {
-            let action = PillarAction(
-                title: rec.title, subtitle: rec.subtitle, pillar: rec.pillar,
-                isCompleted: true, createdAt: .now, completedAt: .now
-            )
-            context.insert(action)
-        }
-        try? context.save()
     }
 }
 

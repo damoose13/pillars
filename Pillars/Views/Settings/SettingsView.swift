@@ -211,6 +211,24 @@ struct SettingsView: View {
                 .padding(PillarsSpacing.s)
                 .background(RoundedRectangle(cornerRadius: PillarsRadius.small).fill(Color.white.opacity(0.04)))
                 .overlay(RoundedRectangle(cornerRadius: PillarsRadius.small).strokeBorder(PillarsColors.cardBorder, lineWidth: 1))
+
+                Divider().overlay(PillarsColors.cardBorder)
+
+                Toggle(isOn: Binding(
+                    get: { appState.spiritualRitualsEnabled },
+                    set: { appState.spiritualRitualsEnabled = $0 }
+                )) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Spiritual rituals")
+                            .font(PillarsTypography.headline)
+                            .foregroundStyle(PillarsColors.primaryText)
+                        Text("Adds practices like temple mornings, prayer, and seva. Off by default — everything stays secular until you turn this on.")
+                            .font(PillarsTypography.caption)
+                            .foregroundStyle(PillarsColors.secondaryText)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+                .tint(PillarsColors.gold)
             }
         }
     }

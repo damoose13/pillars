@@ -157,7 +157,9 @@ enum CirclePulseEngine {
         case .purpose:
             return [
                 CircleAction(title: "Plan a shared reflection",
-                             subtitle: "A temple visit, gratitude prompt, service activity, or a reflection call.",
+                             subtitle: ContentPreferences.shared.spiritualRitualsEnabled
+                                ? "A temple visit, gratitude round, service activity, or a reflection call."
+                                : "A gratitude round, a service activity, or a reflection call.",
                              pillar: .purpose, mode: .community),
                 CircleAction(title: "Trade one thing that mattered",
                              subtitle: "Each person names a single moment that counted this week.",
@@ -168,8 +170,8 @@ enum CirclePulseEngine {
                                  subtitle: "Same hour, separate spaces. Tidy, breathe, then regroup.",
                                  pillar: .space, mode: .circle)]
         case .body, .recover:
-            return [CircleAction(title: "Start a movement streak together",
-                                 subtitle: "Small daily motion, counted as a group — not a competition.",
+            return [CircleAction(title: "Move together this week",
+                                 subtitle: "Small daily motion as a group — shared, never a competition.",
                                  pillar: .body, mode: .circle)]
         case .sleep, .fuel:
             return [CircleAction(title: "Set a gentle wind-down pact",

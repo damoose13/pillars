@@ -18,7 +18,7 @@ struct MainTabView: View {
 
             TodayMovesView()
                 .tag(AppTab.moves)
-                .tabItem { Label("Moves", systemImage: "checklist") }
+                .tabItem { Label("Restore", systemImage: "checklist") }
 
             CircleHomeView()
                 .tag(AppTab.circle)

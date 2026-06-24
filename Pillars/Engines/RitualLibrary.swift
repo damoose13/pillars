@@ -4,7 +4,13 @@ import Foundation
 /// person can build a life around.
 enum RitualLibrary {
 
-    static let all: [Ritual] = [
+    /// Rituals available given the user's content preferences (spiritual practices hidden
+    /// unless opted in).
+    static var all: [Ritual] {
+        allRituals.filter { !$0.spiritual || ContentPreferences.shared.spiritualRitualsEnabled }
+    }
+
+    private static let allRituals: [Ritual] = [
         Ritual(
             id: "room-reset", name: "10-Minute Room Reset",
             summary: "Reset one surface — bed, desk, or floor — and let the room exhale.",
@@ -24,7 +30,8 @@ enum RitualLibrary {
             summary: "A slow, intentional morning — temple, prayer, or quiet devotion.",
             pillar: .purpose, mode: .community, estimatedMinutes: 60, tone: .reflective, shareable: true,
             steps: ["Arrive without rushing.", "Offer your attention fully.", "Carry one intention into the day."],
-            shareMessage: "Heading to temple this morning for a slow start. You're welcome to join — no pressure, just an open invite."),
+            shareMessage: "Heading to temple this morning for a slow start. You're welcome to join — no pressure, just an open invite.",
+            spiritual: true),
 
         Ritual(
             id: "gratitude-circle", name: "Gratitude Circle",
@@ -32,6 +39,13 @@ enum RitualLibrary {
             pillar: .connect, mode: .circle, estimatedMinutes: 20, tone: .connecting, shareable: true,
             steps: ["Gather, even briefly.", "Each person names three good things.", "No fixing — just listening."],
             shareMessage: "Want to do a 10-minute gratitude circle this week? Three good things each, that's it. I'm in if you are."),
+
+        Ritual(
+            id: "what-matters", name: "What Matters Most",
+            summary: "Five quiet minutes naming the one thing that counts today.",
+            pillar: .purpose, mode: .solo, estimatedMinutes: 5, tone: .reflective, shareable: false,
+            steps: ["Sit somewhere quiet.", "Ask what would make today count.", "Write one sentence.", "Carry it with you."],
+            shareMessage: nil),
 
         Ritual(
             id: "sunday-reset", name: "Sunday Reset",
@@ -73,7 +87,8 @@ enum RitualLibrary {
             summary: "Give an hour to something beyond yourself.",
             pillar: .purpose, mode: .community, estimatedMinutes: 60, tone: .reflective, shareable: true,
             steps: ["Pick one act of service.", "Show up with full attention.", "Notice what it gives back."],
-            shareMessage: "Thinking of doing some seva this weekend — an hour of service. Want to come along? It always gives more than it takes.")
+            shareMessage: "Thinking of doing some seva this weekend — an hour of service. Want to come along? It always gives more than it takes.",
+            spiritual: true)
     ]
 
     static func ritual(id: String) -> Ritual? { all.first { $0.id == id } }

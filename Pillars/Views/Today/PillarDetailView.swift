@@ -181,7 +181,10 @@ struct PillarDetailView: View {
         case .space:
             return ["Reset one surface — bed, desk, or floor.", "Outer order, inner calm.", "Finish one small thing fully."]
         case .purpose:
-            return ["Write the one thing that would make today count.", "Five minutes to reflect, pray, or give thanks.", "Direction matters more than speed."]
+            let middle = ContentPreferences.shared.spiritualRitualsEnabled
+                ? "Five minutes to reflect, pray, or give thanks."
+                : "Five minutes to reflect or name what you're grateful for."
+            return ["Write the one thing that would make today count.", middle, "Direction matters more than speed."]
         }
     }
 }
