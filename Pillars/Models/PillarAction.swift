@@ -13,6 +13,8 @@ final class PillarAction {
     var isCompleted: Bool
     var createdAt: Date
     var completedAt: Date?
+    /// A private reflection on whether the restoration helped. Optional, never shared.
+    var helped: String?
 
     init(
         title: String,
@@ -20,7 +22,8 @@ final class PillarAction {
         pillar: PillarType,
         isCompleted: Bool = false,
         createdAt: Date = .now,
-        completedAt: Date? = nil
+        completedAt: Date? = nil,
+        helped: String? = nil
     ) {
         self.title = title
         self.subtitle = subtitle
@@ -28,6 +31,7 @@ final class PillarAction {
         self.isCompleted = isCompleted
         self.createdAt = createdAt
         self.completedAt = completedAt
+        self.helped = helped
     }
 }
 

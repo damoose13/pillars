@@ -10,6 +10,8 @@ struct TodayMovesView: View {
     @Query(sort: \DailyCheckIn.date, order: .reverse) private var checkIns: [DailyCheckIn]
     @Query private var actions: [PillarAction]
 
+    @State private var reflectingRec: PillarRecommendation?
+
     private var result: PillarScoreResult? { PillarScoringEngine.result(from: checkIns) }
 
     var body: some View {
@@ -27,7 +29,12 @@ struct TodayMovesView: View {
                                 PillarMoveCard(
                                     recommendation: rec,
                                     isCompleted: RestorationLog.isCompleted(rec, in: actions),
-                                    onToggle: { RestorationLog.toggle(rec, in: actions, context: context) }
+                                    onToggle: {
+                                        let wasCompleted = RestorationLog.isCompleted(rec, in: actions)
+                                        RestorationLog.toggle(rec, in: actions, context: context)
+                                        // Newly completed → invite a quick private reflection.
+                                        if !wasCompleted { reflectingRec = rec }
+                                    }
                                 )
                             }
                         }
@@ -47,6 +54,9 @@ struct TodayMovesView: View {
             .scrollIndicators(.hidden)
             .pillarsBackground()
             .toolbar(.hidden, for: .navigationBar)
+            .sheet(item: $reflectingRec) { rec in
+                RestorationReflectionView(recommendation: rec)
+            }
         }
     }
 

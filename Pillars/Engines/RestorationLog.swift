@@ -28,4 +28,12 @@ enum RestorationLog {
         }
         try? context.save()
     }
+
+    /// Record a private "did it help?" reflection on today's completed restoration.
+    static func setHelped(_ recommendation: PillarRecommendation, helped: String,
+                          in actions: [PillarAction], context: ModelContext) {
+        guard let existing = actions.first(where: { $0.matches(recommendation) }) else { return }
+        existing.helped = helped
+        try? context.save()
+    }
 }

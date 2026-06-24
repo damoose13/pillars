@@ -1,0 +1,141 @@
+{
+  "identifier" : "A1B2C3D4-0000-4000-8000-00000000FEED",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+
+  ],
+  "settings" : {
+    "_compatibilityTimeRate" : {
+      "rate" : "monthly_renewal_every_1_hour"
+    },
+    "_storeKitErrors" : [
+
+    ]
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "B1000000-0000-4000-8000-000000000001",
+      "localizationsByLanguageCode" : {
+
+      },
+      "name" : "Pillars Plus",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "7.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "C1000000-0000-4000-8000-000000000001",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Your complete history, weekly and monthly reviews, and deeper insights.",
+              "displayName" : "Pillars Plus · Monthly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "pillars.plus.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Pillars Plus Monthly",
+          "subscriptionGroupID" : "B1000000-0000-4000-8000-000000000001",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "59.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "C1000000-0000-4000-8000-000000000002",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "A year of Pillars Plus — your complete history, reviews, and deeper insights.",
+              "displayName" : "Pillars Plus · Yearly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "pillars.plus.yearly",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Pillars Plus Yearly",
+          "subscriptionGroupID" : "B1000000-0000-4000-8000-000000000001",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    },
+    {
+      "id" : "B1000000-0000-4000-8000-000000000002",
+      "localizationsByLanguageCode" : {
+
+      },
+      "name" : "Circle Pass",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "14.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "C1000000-0000-4000-8000-000000000003",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Hold a Circle privately: Pulse, shared resets, and voluntary wins.",
+              "displayName" : "Circle Pass · Monthly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "pillars.circle.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Circle Pass Monthly",
+          "subscriptionGroupID" : "B1000000-0000-4000-8000-000000000002",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "99.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "C1000000-0000-4000-8000-000000000004",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "A year of Circle Pass — privacy-safe support for a small, trusted group.",
+              "displayName" : "Circle Pass · Yearly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "pillars.circle.yearly",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Circle Pass Yearly",
+          "subscriptionGroupID" : "B1000000-0000-4000-8000-000000000002",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 4,
+    "minor" : 0
+  }
+}
