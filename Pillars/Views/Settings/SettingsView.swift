@@ -13,6 +13,8 @@ struct SettingsView: View {
 
     @State private var showClearConfirm = false
     @State private var showPaywall = false
+    @State private var showExport = false
+    @State private var exportURL: URL?
 
     private var appVersion: String {
         let v = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.1.0"
@@ -53,6 +55,11 @@ struct SettingsView: View {
         .scrollIndicators(.hidden)
         .pillarsBackground()
         .sheet(isPresented: $showPaywall) { PaywallView() }
+        .sheet(isPresented: $showExport) {
+            if let exportURL {
+                ExportSheet(url: exportURL)
+            }
+        }
         .confirmationDialog(
             "Clear all check-ins and moves?",
             isPresented: $showClearConfirm,
@@ -252,9 +259,30 @@ struct SettingsView: View {
     private var dataSection: some View {
         SettingsSection(title: "Your data", icon: "tray.full.fill") {
             VStack(alignment: .leading, spacing: PillarsSpacing.m) {
-                Text("You're always in control of your history.")
+                Text("You're always in control of your history. Export a copy, or clear everything.")
                     .font(PillarsTypography.callout)
                     .foregroundStyle(PillarsColors.secondaryText)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Button {
+                    exportURL = DataExport.makeFile(from: checkIns)
+                    showExport = exportURL != nil
+                } label: {
+                    HStack(spacing: PillarsSpacing.xs) {
+                        Image(systemName: "square.and.arrow.up")
+                        Text("Export your data")
+                    }
+                    .font(PillarsTypography.headline)
+                    .foregroundStyle(PillarsColors.primaryText)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                    .background(Capsule().fill(Color.white.opacity(0.06)))
+                    .overlay(Capsule().strokeBorder(PillarsColors.cardBorder, lineWidth: 1))
+                }
+                .buttonStyle(PressableButtonStyle())
+                .disabled(checkIns.isEmpty)
+                .opacity(checkIns.isEmpty ? 0.5 : 1)
+
                 Button(role: .destructive) {
                     showClearConfirm = true
                 } label: {
@@ -389,6 +417,51 @@ private struct FlowChips: View {
                 }
                 .buttonStyle(PressableButtonStyle())
             }
+        }
+    }
+}
+
+/// A small sheet that offers to share or save the exported data file.
+private struct ExportSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    let url: URL
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: PillarsSpacing.l) {
+                Spacer()
+                Image(systemName: "doc.text")
+                    .font(.system(size: 42, weight: .light))
+                    .foregroundStyle(PillarsColors.gold)
+                Text("Your data, ready to save")
+                    .font(PillarsTypography.title)
+                    .foregroundStyle(PillarsColors.primaryText)
+                    .multilineTextAlignment(.center)
+                Text("A JSON file of every check-in. It stays on your device unless you choose to share it.")
+                    .font(PillarsTypography.body)
+                    .foregroundStyle(PillarsColors.secondaryText)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+                ShareLink(item: url) {
+                    Label("Share or save", systemImage: "square.and.arrow.up")
+                        .font(PillarsTypography.headline)
+                        .foregroundStyle(PillarsColors.background)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 15)
+                        .background(Capsule().fill(PillarsColors.gold))
+                }
+                .buttonStyle(PressableButtonStyle())
+                Spacer()
+            }
+            .padding(.horizontal, PillarsSpacing.xl)
+            .frame(maxWidth: .infinity)
+            .pillarsBackground()
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") { dismiss() }.foregroundStyle(PillarsColors.gold)
+                }
+            }
+            .presentationDetents([.medium])
         }
     }
 }

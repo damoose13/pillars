@@ -34,6 +34,7 @@ struct HistoryView: View {
                 if checkIns.isEmpty {
                     emptyState
                 } else {
+                    rhythmCard
                     statsCard
                     VStack(spacing: PillarsSpacing.s) {
                         ForEach(visibleCheckIns) { checkIn in
@@ -67,6 +68,38 @@ struct HistoryView: View {
                 .font(PillarsTypography.display)
                 .foregroundStyle(PillarsColors.primaryText)
                 .lineSpacing(2)
+        }
+    }
+
+    /// Distinct start-of-day dates that have a check-in.
+    private var checkInDays: Set<Date> {
+        Set(checkIns.map { Calendar.current.startOfDay(for: $0.date) })
+    }
+
+    private var daysThisMonth: Int {
+        let cal = Calendar.current
+        guard let first = cal.date(from: cal.dateComponents([.year, .month], from: Date())) else { return 0 }
+        return checkInDays.filter { $0 >= first }.count
+    }
+
+    /// New: a calm month grid of presence — continuity without streaks.
+    private var rhythmCard: some View {
+        PillarGlassCard {
+            VStack(alignment: .leading, spacing: PillarsSpacing.m) {
+                HStack(alignment: .firstTextBaseline) {
+                    Text(Date().formatted(.dateTime.month(.wide).year()))
+                        .font(PillarsTypography.headline)
+                        .foregroundStyle(PillarsColors.primaryText)
+                    Spacer()
+                    Text("\(daysThisMonth) day\(daysThisMonth == 1 ? "" : "s") here")
+                        .font(PillarsTypography.caption)
+                        .foregroundStyle(PillarsColors.secondaryText)
+                }
+                RhythmCalendar(checkInDays: checkInDays)
+                Text("A record of presence — not a streak to protect.")
+                    .font(PillarsTypography.caption)
+                    .foregroundStyle(PillarsColors.tertiaryText)
+            }
         }
     }
 
