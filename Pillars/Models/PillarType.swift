@@ -92,7 +92,7 @@ enum PillarType: String, Codable, CaseIterable, Identifiable, Hashable {
     }
 
     /// Suggested alternate names for the Purpose pillar, offered in Settings.
-    static let purposeAliasSuggestions = ["Purpose", "Spirit", "Faith", "Values", "Meaning", "Direction"]
+    static let purposeAliasSuggestions = ["Purpose", "Spirit", "Faith", "Values", "Meaning", "Direction", "Dharma"]
 }
 
 /// Resolves user-facing pillar names, applying any custom alias.
