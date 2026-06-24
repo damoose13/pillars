@@ -8,6 +8,7 @@
 
 /* Begin PBXFileReference section */
 		0B0000000000000000000004 /* Pillars.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pillars.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		0B0000000000000000000021 /* PillarsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PillarsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -16,10 +17,22 @@
 			path = Pillars;
 			sourceTree = "<group>";
 		};
+		0B0000000000000000000020 /* PillarsTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = PillarsTests;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		0B0000000000000000000007 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0B0000000000000000000024 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -33,6 +46,7 @@
 			isa = PBXGroup;
 			children = (
 				0B000000000000000000000F /* Pillars */,
+				0B0000000000000000000020 /* PillarsTests */,
 				0B0000000000000000000003 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -41,6 +55,7 @@
 			isa = PBXGroup;
 			children = (
 				0B0000000000000000000004 /* Pillars.app */,
+				0B0000000000000000000021 /* PillarsTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -68,7 +83,38 @@
 			productReference = 0B0000000000000000000004 /* Pillars.app */;
 			productType = "com.apple.product-type.application";
 		};
+		0B0000000000000000000022 /* PillarsTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0B0000000000000000000026 /* Build configuration list for PBXNativeTarget "PillarsTests" */;
+			buildPhases = (
+				0B0000000000000000000023 /* Sources */,
+				0B0000000000000000000024 /* Frameworks */,
+				0B0000000000000000000025 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				0B0000000000000000000029 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				0B0000000000000000000020 /* PillarsTests */,
+			);
+			name = PillarsTests;
+			productName = PillarsTests;
+			productReference = 0B0000000000000000000021 /* PillarsTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
+
+/* Begin PBXContainerItemProxy section */
+		0B000000000000000000002A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0B0000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0B0000000000000000000005;
+			remoteInfo = Pillars;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXProject section */
 		0B0000000000000000000001 /* Project object */ = {
@@ -80,6 +126,10 @@
 				TargetAttributes = {
 					0B0000000000000000000005 = {
 						CreatedOnToolsVersion = 16.0;
+					};
+					0B0000000000000000000022 = {
+						CreatedOnToolsVersion = 16.0;
+						TestTargetID = 0B0000000000000000000005;
 					};
 				};
 			};
@@ -97,6 +147,7 @@
 			projectRoot = "";
 			targets = (
 				0B0000000000000000000005 /* Pillars */,
+				0B0000000000000000000022 /* PillarsTests */,
 			);
 		};
 /* End PBXProject section */
@@ -109,10 +160,32 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		0B0000000000000000000025 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		0B0000000000000000000029 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0B0000000000000000000005 /* Pillars */;
+			targetProxy = 0B000000000000000000002A /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXSourcesBuildPhase section */
 		0B0000000000000000000006 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0B0000000000000000000023 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -295,6 +368,42 @@
 			};
 			name = Release;
 		};
+		0B0000000000000000000027 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.pillars.appTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Pillars.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Pillars";
+			};
+			name = Debug;
+		};
+		0B0000000000000000000028 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.pillars.appTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Pillars.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Pillars";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -312,6 +421,15 @@
 			buildConfigurations = (
 				0B000000000000000000000D /* Debug */,
 				0B000000000000000000000E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0B0000000000000000000026 /* Build configuration list for PBXNativeTarget "PillarsTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0B0000000000000000000027 /* Debug */,
+				0B0000000000000000000028 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
