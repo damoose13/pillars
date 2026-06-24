@@ -11,8 +11,19 @@ struct BaselineAssessmentView: View {
     @State private var scores: [PillarType: Int] = Dictionary(
         uniqueKeysWithValues: PillarType.allCases.map { ($0, 3) }
     )
+    @State private var revealScores: [PillarType: Int]?
 
     var body: some View {
+        ZStack {
+            baselineForm
+            if let revealScores {
+                FoundationRevealView(scores: revealScores, onContinue: onComplete)
+                    .transition(.opacity)
+            }
+        }
+    }
+
+    private var baselineForm: some View {
         VStack(spacing: 0) {
             ScrollView {
                 VStack(alignment: .leading, spacing: PillarsSpacing.xl) {
@@ -80,7 +91,7 @@ struct BaselineAssessmentView: View {
         }
         context.insert(checkIn)
         try? context.save()
-        onComplete()
+        withAnimation(.smooth(duration: 0.5)) { revealScores = scores }
     }
 }
 

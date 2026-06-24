@@ -74,6 +74,7 @@ jobs:
           shoot 01_welcome        "--uitest --route welcome"
           shoot 02_philosophy     "--uitest --route philosophy"
           shoot 03_baseline       "--uitest --route baseline"
+          shoot 03b_reveal        "--uitest --route reveal"
           shoot 04_today          "--uitest --screen today"
           shoot 05_daily_checkin  "--uitest --route checkin"
           shoot 06_weekly_review  "--uitest --route weekly"

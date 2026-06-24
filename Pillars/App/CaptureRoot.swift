@@ -19,6 +19,11 @@ struct CaptureRoot: View {
             PillarPhilosophyView(onContinue: {}, onBack: {}).pillarsBackground()
         case "baseline":
             BaselineAssessmentView(onComplete: {}, onBack: {}).pillarsBackground()
+        case "reveal":
+            FoundationRevealView(scores: [
+                .body: 4, .fuel: 3, .sleep: 4, .recover: 3,
+                .mind: 4, .connect: 2, .space: 4, .purpose: 5
+            ])
 
         // Today flow.
         case "today":
