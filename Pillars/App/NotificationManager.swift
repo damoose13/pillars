@@ -68,7 +68,7 @@ final class NotificationManager {
 
         let content = UNMutableNotificationContent()
         content.title = "Pillars"
-        content.body = "A quiet minute. How are your pillars today?"
+        content.body = Self.reminderBody()
 
         let comps = Calendar.current.dateComponents([.hour, .minute], from: reminderTime)
         let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: true)
@@ -78,6 +78,23 @@ final class NotificationManager {
 
     private func cancel() {
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [requestID])
+    }
+
+    /// A small, warm rotation so the daily reminder never reads like the same canned line.
+    /// Repeating triggers freeze their content, so this varies whenever it's rescheduled
+    /// (each launch-day) rather than per fire — gentle, not robotic.
+    private static let reminderBodies = [
+        "A quiet minute. How are your pillars today?",
+        "Where are you holding up — and what needs you today?",
+        "A minute to notice the shape of your day.",
+        "No streaks to keep. Just a quiet check-in when you're ready.",
+        "How's the foundation today? Small restoration beats overhaul.",
+        "One honest read across the eight pillars.",
+    ]
+
+    private static func reminderBody() -> String {
+        let day = Calendar.current.ordinality(of: .day, in: .year, for: .now) ?? 0
+        return reminderBodies[day % reminderBodies.count]
     }
 
     private func saveTime() {

@@ -23,6 +23,7 @@ struct WeeklyReviewView: View {
                     summaryCard(review)
                     highlightsRow(review)
                     supportedCard(review)
+                    reflectionsCard
                     patternCard(review)
                     focusCard(review)
                     suggestionsSection(review)
@@ -125,6 +126,41 @@ struct WeeklyReviewView: View {
         return ViewThatFits(in: .horizontal) {
             HStack(spacing: PillarsSpacing.s) { weakest; strongest; improved }
             VStack(spacing: PillarsSpacing.s) { weakest; strongest; improved }
+        }
+    }
+
+    /// New: the week's own reflections — what the user said actually helped.
+    private var weekReflections: [PillarAction] {
+        let cutoff = Calendar.current.date(byAdding: .day, value: -7, to: .now) ?? .distantPast
+        return actions
+            .filter { ($0.helped?.isEmpty == false) && $0.createdAt >= cutoff }
+            .sorted { $0.createdAt > $1.createdAt }
+            .prefix(3).map { $0 }
+    }
+
+    @ViewBuilder private var reflectionsCard: some View {
+        if !weekReflections.isEmpty {
+            PillarGlassCard {
+                VStack(alignment: .leading, spacing: PillarsSpacing.m) {
+                    Label { Text("What helped this week") } icon: { Image(systemName: "checkmark.seal") }
+                        .pillarsOverline(PillarsColors.gold.opacity(0.9))
+                    ForEach(weekReflections) { action in
+                        HStack(spacing: PillarsSpacing.s) {
+                            PillarIconBadge(pillar: action.pillar, size: 36)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(action.title)
+                                    .font(PillarsTypography.headline)
+                                    .foregroundStyle(PillarsColors.primaryText)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                Text(action.helped ?? "")
+                                    .font(PillarsTypography.caption)
+                                    .foregroundStyle(PillarsColors.secondaryText)
+                            }
+                            Spacer(minLength: 0)
+                        }
+                    }
+                }
+            }
         }
     }
 

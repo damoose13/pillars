@@ -7,10 +7,16 @@ struct PillarDetailView: View {
     let pillar: PillarType
 
     @Query(sort: \DailyCheckIn.date, order: .reverse) private var checkIns: [DailyCheckIn]
+    @Query(sort: \PillarAction.createdAt, order: .reverse) private var actions: [PillarAction]
 
-    /// Up to seven most recent check-ins, oldest → newest, for the history strip.
+    /// Up to seven most recent check-ins, oldest → newest, for the trend line.
     private var history: [DailyCheckIn] {
         Array(checkIns.prefix(7).reversed())
+    }
+
+    /// The user's own recent reflections on restorations for this pillar — what's helped.
+    private var reflections: [PillarAction] {
+        actions.filter { $0.pillar == pillar && ($0.helped?.isEmpty == false) }.prefix(3).map { $0 }
     }
 
     private var currentScore: Int { checkIns.first?.score(for: pillar) ?? 0 }
@@ -26,6 +32,7 @@ struct PillarDetailView: View {
                 heading
                 statusCard
                 if history.count > 1 { historyCard }
+                reflectionsCard
                 supportCard
                 ritualCard
             }
@@ -120,25 +127,50 @@ struct PillarDetailView: View {
     private var historyCard: some View {
         PillarGlassCard {
             VStack(alignment: .leading, spacing: PillarsSpacing.m) {
-                Text("Recent history")
+                Text("Recent trend")
                     .font(PillarsTypography.headline)
                     .foregroundStyle(PillarsColors.primaryText)
-                HStack(alignment: .bottom, spacing: 10) {
+                Sparkline(values: history.map { $0.score(for: pillar) }, color: pillar.color)
+                    .frame(height: 96)
+                HStack(spacing: 0) {
                     ForEach(history.indices, id: \.self) { idx in
-                        let checkIn = history[idx]
-                        let value = checkIn.score(for: pillar)
-                        VStack(spacing: 8) {
-                            RoundedRectangle(cornerRadius: 5, style: .continuous)
-                                .fill(pillar.color.opacity(0.85))
-                                .frame(height: max(8, CGFloat(value) / 5 * 90))
-                                .frame(maxWidth: .infinity)
-                            Text(checkIn.date.formatted(.dateTime.weekday(.narrow)))
-                                .font(.system(size: 11, weight: .semibold))
-                                .foregroundStyle(PillarsColors.tertiaryText)
+                        Text(history[idx].date.formatted(.dateTime.weekday(.narrow)))
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundStyle(PillarsColors.tertiaryText)
+                            .frame(maxWidth: .infinity)
+                    }
+                }
+            }
+        }
+    }
+
+    /// New: surfaces the user's own "did it help?" reflections for this pillar.
+    @ViewBuilder private var reflectionsCard: some View {
+        if !reflections.isEmpty {
+            PillarGlassCard {
+                VStack(alignment: .leading, spacing: PillarsSpacing.m) {
+                    Text("What's been helping you")
+                        .font(PillarsTypography.headline)
+                        .foregroundStyle(PillarsColors.primaryText)
+                    ForEach(reflections) { action in
+                        HStack(alignment: .top, spacing: PillarsSpacing.s) {
+                            Image(systemName: "checkmark.seal.fill")
+                                .font(.system(size: 14))
+                                .foregroundStyle(PillarsColors.gold)
+                                .padding(.top, 2)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(action.title)
+                                    .font(PillarsTypography.callout.weight(.medium))
+                                    .foregroundStyle(PillarsColors.primaryText)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                Text("\(action.helped ?? "") · \(action.createdAt.formatted(.relative(presentation: .named)))")
+                                    .font(PillarsTypography.caption)
+                                    .foregroundStyle(PillarsColors.secondaryText)
+                            }
+                            Spacer(minLength: 0)
                         }
                     }
                 }
-                .frame(height: 110, alignment: .bottom)
             }
         }
     }
