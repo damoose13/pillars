@@ -87,6 +87,7 @@ jobs:
           shoot 13b_morale        "--uitest --route morale"
           shoot 13c_member        "--uitest --route memberprofile"
           shoot 13d_sharing       "--uitest --route sharing"
+          shoot 13e_checkin       "--uitest --route checkin_circle"
           shoot 14_privacy        "--uitest --route privacy"
           shoot 15_share_win      "--uitest --route sharedwin"
           shoot 16_shared_reset   "--uitest --route sharedreset"

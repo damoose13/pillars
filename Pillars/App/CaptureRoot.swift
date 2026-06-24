@@ -67,6 +67,8 @@ struct CaptureRoot: View {
             }())
         case "sharing":
             CircleSharingSettingsView()
+        case "checkin_circle":
+            GentleCheckInComposerView()
         case "privacy":
             PrivacyExplainerView()
         case "sharedwin":

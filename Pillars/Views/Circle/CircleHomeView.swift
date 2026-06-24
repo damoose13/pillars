@@ -19,6 +19,7 @@ struct CircleHomeView: View {
     @State private var showPaywall = false
     @State private var showSharedReset = false
     @State private var showSharing = false
+    @State private var showCheckIn = false
     @State private var selectedMember: CircleMember?
 
     private var hasCircle: Bool { !circles.isEmpty }
@@ -28,13 +29,14 @@ struct CircleHomeView: View {
         return wins.filter { $0.createdAt >= cutoff }.count
     }
 
-    private var pulse: CirclePulse {
-        CirclePulseEngine.pulse(members: members, winsThisWeek: winsThisWeek)
-    }
-
     /// The privacy-safe morale read that drives the hero (group web, morale word, gap).
     private var aggregate: CircleAggregate {
         CircleMoraleEngine.aggregate(members: members)
+    }
+
+    /// Morale-aware group suggestions — what the Circle might do together right now.
+    private var recommendations: [CircleAction] {
+        CircleRecommendationEngine.recommendations(for: aggregate, winsThisWeek: winsThisWeek)
     }
 
     var body: some View {
@@ -72,6 +74,7 @@ struct CircleHomeView: View {
             .sheet(isPresented: $showPaywall) { PaywallView(highlightTier: .circlePass) }
             .sheet(isPresented: $showSharedReset) { SharedResetFlowView() }
             .sheet(isPresented: $showSharing) { CircleSharingSettingsView() }
+            .sheet(isPresented: $showCheckIn) { GentleCheckInComposerView() }
             .sheet(item: $selectedMember) { MemberCircleProfileView(member: $0) }
             .confirmationDialog("Leave this Circle?", isPresented: $showLeaveConfirm, titleVisibility: .visible) {
                 Button("Leave Circle", role: .destructive) { leaveCircle() }
@@ -145,15 +148,18 @@ struct CircleHomeView: View {
     private var actionsSection: some View {
         VStack(alignment: .leading, spacing: PillarsSpacing.m) {
             SectionHeader(
-                title: pulse.isAlone ? "Grow your Circle" : "Shared resets",
-                subtitle: pulse.isAlone ? "Better together." : "Small, optional, no pressure.",
-                actionTitle: pulse.isAlone ? nil : "Invite",
+                title: aggregate.isAlone ? "Grow your Circle" : "Support, together",
+                subtitle: aggregate.isAlone ? "Better together." : "Small, optional, no pressure.",
+                actionTitle: aggregate.isAlone ? nil : "Invite",
                 action: { showAddPeople = true }
             )
-            ForEach(pulse.actions) { action in
+            if !aggregate.isAlone {
+                SecondaryButton(title: "Send a gentle check-in", icon: "bubble.left.and.bubble.right.fill") { showCheckIn = true }
+            }
+            ForEach(recommendations) { action in
                 CircleActionSuggestionView(action: action, onStart: { showSharedReset = true })
             }
-            if !pulse.isAlone {
+            if !aggregate.isAlone {
                 PrimaryButton(title: "Start a shared reset", icon: "sparkles") { showSharedReset = true }
                     .padding(.top, PillarsSpacing.xxs)
                 Text("A shared reset walks you through choosing a moment, inviting someone, and showing up — no one ever sees your scores.")
