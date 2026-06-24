@@ -137,12 +137,12 @@ struct CircleHomeView: View {
                 action: { showAddPeople = true }
             )
             ForEach(pulse.actions) { action in
-                CircleActionSuggestionView(action: action, onNudge: {})
+                CircleActionSuggestionView(action: action, onStart: { showSharedReset = true })
             }
             if !pulse.isAlone {
                 PrimaryButton(title: "Start a shared reset", icon: "sparkles") { showSharedReset = true }
                     .padding(.top, PillarsSpacing.xxs)
-                Text("Nudges are a gentle ping. A shared reset walks you through inviting someone and showing up — no one ever sees your scores.")
+                Text("A shared reset walks you through choosing a moment, inviting someone, and showing up — no one ever sees your scores.")
                     .font(PillarsTypography.caption)
                     .foregroundStyle(PillarsColors.tertiaryText)
                     .fixedSize(horizontal: false, vertical: true)

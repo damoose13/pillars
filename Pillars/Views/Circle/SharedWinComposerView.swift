@@ -42,6 +42,8 @@ struct SharedWinComposerView: View {
                         }
                     }
 
+                    quickWinsCard
+
                     PillarGlassCard {
                         VStack(alignment: .leading, spacing: PillarsSpacing.m) {
                             field(title: "The win", placeholder: "What went well?", text: $title, lines: 1...2)
@@ -88,6 +90,44 @@ struct SharedWinComposerView: View {
             .overlay(Capsule().strokeBorder(selected ? Color.clear : PillarsColors.cardBorder, lineWidth: 1))
         }
         .buttonStyle(PressableButtonStyle())
+    }
+
+    /// One-tap starting points, tuned to the chosen pillar. Tapping fills the win — still editable.
+    private var quickWinsCard: some View {
+        PillarGlassCard {
+            VStack(alignment: .leading, spacing: PillarsSpacing.m) {
+                Text("Quick wins")
+                    .pillarsOverline()
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 120), spacing: 8)], alignment: .leading, spacing: 8) {
+                    ForEach(quickWins(for: pillar), id: \.self) { win in
+                        Button { withAnimation(.snappy) { title = win } } label: {
+                            Text(win)
+                                .font(PillarsTypography.caption.weight(.medium))
+                                .foregroundStyle(title == win ? PillarsColors.background : PillarsColors.primaryText)
+                                .frame(maxWidth: .infinity)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 9)
+                                .background(Capsule().fill(title == win ? PillarsColors.gold : Color.white.opacity(0.05)))
+                                .overlay(Capsule().strokeBorder(title == win ? Color.clear : PillarsColors.cardBorder, lineWidth: 1))
+                        }
+                        .buttonStyle(PressableButtonStyle())
+                    }
+                }
+            }
+        }
+    }
+
+    private func quickWins(for pillar: PillarType) -> [String] {
+        switch pillar {
+        case .body:    return ["Moved my body", "Took a walk", "Stretched it out"]
+        case .fuel:    return ["Ate something real", "More water today", "Cooked for myself"]
+        case .sleep:   return ["Slept enough", "Wound down early", "Phone away at night"]
+        case .recover: return ["Took a real break", "Rested without guilt", "Said no to too much"]
+        case .mind:    return ["Cleared my head", "Finished one thing", "Asked for help"]
+        case .connect: return ["Reached out", "Showed up for someone", "Had a real talk"]
+        case .space:   return ["Cleared the clutter", "Tidied my space", "Made room to breathe"]
+        case .purpose: return ["Did what matters", "One aligned step", "Made time for meaning"]
+        }
     }
 
     private func field(title: String, placeholder: String, text: Binding<String>, lines: ClosedRange<Int>) -> some View {

@@ -236,10 +236,11 @@ struct SettingsView: View {
     private var privacySection: some View {
         SettingsSection(title: "Privacy", icon: "lock.fill") {
             VStack(alignment: .leading, spacing: PillarsSpacing.s) {
-                Text("Private by design.")
+                Text("Private by design. You choose what, if anything, gets shared.")
                     .font(PillarsTypography.headline)
                     .foregroundStyle(PillarsColors.primaryText)
-                Text("Your check-ins, notes, and scores are stored only on this device. Nothing is uploaded, shared, or used to identify you. When Circles arrive, your individual scores will stay private there too — only signals you choose to share are ever shown.")
+                    .fixedSize(horizontal: false, vertical: true)
+                Text("Your check-ins, notes, and scores are stored only on this device — nothing is uploaded or used to identify you. Individual scores are never shown to Circle members; only the signals you choose to share are ever visible.")
                     .font(PillarsTypography.callout)
                     .foregroundStyle(PillarsColors.secondaryText)
                     .lineSpacing(2)

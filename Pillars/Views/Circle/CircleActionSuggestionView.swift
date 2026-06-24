@@ -1,12 +1,10 @@
 import SwiftUI
 
-/// A suggested shared action ("group reset"). Tapping **Nudge** sends a playful, local-only
-/// ping to the Circle — no scores, no pressure. Real delivery arrives with the backend.
+/// A suggested shared action ("group reset"). Tapping **Start reset** opens the shared-reset
+/// flow — choose, invite, show up — with no scores and no pressure.
 struct CircleActionSuggestionView: View {
     let action: CircleAction
-    var onNudge: () -> Void = {}
-
-    @State private var nudged = false
+    var onStart: () -> Void = {}
 
     private var accent: Color { action.pillar?.color ?? PillarsColors.gold }
 
@@ -44,20 +42,15 @@ struct CircleActionSuggestionView: View {
 
                 Spacer(minLength: 0)
 
-                Button {
-                    withAnimation(.snappy) { nudged = true }
-                    onNudge()
-                } label: {
-                    Text(nudged ? "Nudged" : "Nudge")
+                Button(action: onStart) {
+                    Text("Start reset")
                         .font(PillarsTypography.caption.weight(.semibold))
-                        .foregroundStyle(nudged ? PillarsColors.tertiaryText : PillarsColors.background)
+                        .foregroundStyle(PillarsColors.background)
                         .padding(.horizontal, 14)
                         .padding(.vertical, 8)
-                        .background(Capsule().fill(nudged ? Color.white.opacity(0.06) : PillarsColors.gold))
+                        .background(Capsule().fill(PillarsColors.gold))
                 }
                 .buttonStyle(PressableButtonStyle())
-                .disabled(nudged)
-                .sensoryFeedback(.success, trigger: nudged)
             }
         }
     }
