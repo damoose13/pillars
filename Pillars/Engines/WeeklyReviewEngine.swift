@@ -58,7 +58,9 @@ enum WeeklyReviewEngine {
         let mostImproved = mostImprovedPillar(in: recent)
         let mostSupported = mostSupportedPillar(actions: actions, window: window)
         let leverage = highestLeverage(averages: averages, weakest: weakest)
-        let pattern = hiddenPattern(averages: averages, strongest: strongest, mostImproved: mostImproved)
+        // Prefer a real, data-driven co-movement pattern; fall back to the threshold rules.
+        let pattern = WeeklyInsightEngine.pattern(from: recent)?.text
+            ?? hiddenPattern(averages: averages, strongest: strongest, mostImproved: mostImproved)
 
         // Suggested restorations: feed the averaged scores through the restoration engine.
         let synthetic = DailyCheckIn()
