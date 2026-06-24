@@ -5,7 +5,7 @@ import SwiftData
 /// In-memory SwiftData container with a couple of seeded check-ins, used by `#Preview`s.
 enum PreviewData {
     @MainActor static let container: ModelContainer = {
-        let schema = Schema([DailyCheckIn.self, PillarAction.self, CircleGroup.self, CircleMember.self, SharedWin.self])
+        let schema = Schema([DailyCheckIn.self, PillarAction.self, CircleGroup.self, CircleMember.self, SharedWin.self, SavedRitual.self])
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         let container = try! ModelContainer(for: schema, configurations: [config])
         let context = container.mainContext

@@ -35,7 +35,7 @@ struct MainTabView: View {
                 .tag(AppTab.today)
                 .tabItem { Label("Today", systemImage: "circle.hexagongrid") }
 
-            TodayMovesView()
+            RestoreHomeView()
                 .tag(AppTab.moves)
                 .tabItem { Label("Restore", systemImage: "checklist") }
 

@@ -39,9 +39,9 @@ struct CaptureRoot: View {
         case "pillardetail":
             NavigationStack { PillarDetailView(pillar: .connect) }
 
-        // Moves / rituals.
+        // Restore / rituals.
         case "moves":
-            TodayMovesView()
+            RestoreHomeView()
         case "rituals":
             NavigationStack { RitualLibraryView() }
         case "ritualdetail":

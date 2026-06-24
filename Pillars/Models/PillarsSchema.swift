@@ -10,7 +10,8 @@ enum PillarsSchemaV1: VersionedSchema {
     static var versionIdentifier = Schema.Version(1, 0, 0)
 
     static var models: [any PersistentModel.Type] {
-        [DailyCheckIn.self, PillarAction.self, CircleGroup.self, CircleMember.self, SharedWin.self]
+        [DailyCheckIn.self, PillarAction.self, CircleGroup.self, CircleMember.self, SharedWin.self,
+         SavedRitual.self]
     }
 }
 

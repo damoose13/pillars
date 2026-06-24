@@ -7,7 +7,10 @@ struct RitualDetailView: View {
     let ritual: Ritual
 
     @Environment(\.modelContext) private var context
+    @Query private var savedRituals: [SavedRitual]
     @State private var done = false
+
+    private var isSaved: Bool { RitualSaveStore.isSaved(ritual, in: savedRituals) }
 
     var body: some View {
         ScrollView {
@@ -27,6 +30,16 @@ struct RitualDetailView: View {
         .pillarsBackground()
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(.hidden, for: .navigationBar)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    RitualSaveStore.toggle(ritual, in: savedRituals, context: context)
+                } label: {
+                    Label(isSaved ? "Saved" : "Save", systemImage: isSaved ? "bookmark.fill" : "bookmark")
+                        .foregroundStyle(isSaved ? PillarsColors.gold : PillarsColors.secondaryText)
+                }
+            }
+        }
     }
 
     private var header: some View {
