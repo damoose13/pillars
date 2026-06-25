@@ -11,6 +11,8 @@ struct PillarsApp: App {
     @State private var notifications = NotificationManager()
     /// Optional, on-device Apple Health integration.
     @State private var health = HealthKitManager()
+    /// Pillars Band integration seam (pairing + latest physiological read).
+    @State private var band = BandManager()
 
     /// Local-first SwiftData store (in-memory + seeded under `--uitest`).
     let modelContainer: ModelContainer = AppLaunch.makeContainer()
@@ -22,6 +24,7 @@ struct PillarsApp: App {
                 .environment(entitlements)
                 .environment(notifications)
                 .environment(health)
+                .environment(band)
                 .tint(PillarsColors.gold)
                 .preferredColorScheme(.dark)
                 // Allow larger text for accessibility, but clamp extremes so the editorial
