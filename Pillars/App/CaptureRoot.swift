@@ -85,6 +85,9 @@ struct CaptureRoot: View {
             PaywallView()
         case "settings":
             SettingsView()
+        case "devices":
+            NavigationStack { DevicesView() }
+                .environment(BandManager.previewPaired())
 
         default:
             TodayDashboardView()

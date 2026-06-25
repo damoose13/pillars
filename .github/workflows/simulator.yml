@@ -95,6 +95,7 @@ jobs:
           shoot 16b_reset_compose "--uitest --route resetcompose"
           shoot 17_paywall        "--uitest --route paywall"
           shoot 18_settings       "--uitest --screen settings"
+          shoot 19_devices        "--uitest --route devices"
           ls -la screenshots
 
       - name: Upload artifacts

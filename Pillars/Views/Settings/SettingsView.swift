@@ -15,6 +15,7 @@ struct SettingsView: View {
     @State private var showClearConfirm = false
     @State private var showPaywall = false
     @State private var showExport = false
+    @State private var showDevices = false
     @State private var exportURL: URL?
 
     private var appVersion: String {
@@ -39,6 +40,7 @@ struct SettingsView: View {
                 planSection
                 remindersSection
                 healthSection
+                devicesSection
                 purposeSection(appState: appState)
                 syncSection
                 privacySection
@@ -57,6 +59,7 @@ struct SettingsView: View {
         .scrollIndicators(.hidden)
         .pillarsBackground()
         .sheet(isPresented: $showPaywall) { PaywallView() }
+        .sheet(isPresented: $showDevices) { NavigationStack { DevicesView() } }
         .sheet(isPresented: $showExport) {
             if let exportURL {
                 ExportSheet(url: exportURL)
@@ -240,6 +243,29 @@ struct SettingsView: View {
     }
 
     #endif
+
+    private var devicesSection: some View {
+        SettingsSection(title: "Devices", icon: "applewatch.side.right") {
+            Button { showDevices = true } label: {
+                HStack(spacing: PillarsSpacing.m) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Pillars Band & HUD")
+                            .font(PillarsTypography.headline)
+                            .foregroundStyle(PillarsColors.primaryText)
+                        Text("Pair the band for heart rate, HRV, sleep, and a daily readiness read. It senses you, never the world around you.")
+                            .font(PillarsTypography.caption)
+                            .foregroundStyle(PillarsColors.secondaryText)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    Spacer(minLength: 0)
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(PillarsColors.tertiaryText)
+                }
+            }
+            .buttonStyle(.plain)
+        }
+    }
 
     private func purposeSection(appState: AppState) -> some View {
         SettingsSection(title: "The eighth pillar", icon: "mountain.2.fill") {
