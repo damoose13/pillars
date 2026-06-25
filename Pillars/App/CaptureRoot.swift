@@ -88,6 +88,9 @@ struct CaptureRoot: View {
         case "devices":
             NavigationStack { DevicesView() }
                 .environment(BandManager.previewPaired())
+        case "trainmode":
+            TrainModeView()
+                .environment(BandManager.previewPaired())
 
         default:
             TodayDashboardView()

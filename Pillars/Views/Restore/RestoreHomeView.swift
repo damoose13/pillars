@@ -6,6 +6,7 @@ import SwiftData
 /// today's moves, recommended rituals, saved rituals, and recent completions into one place.
 struct RestoreHomeView: View {
     @Query(sort: \DailyCheckIn.date, order: .reverse) private var checkIns: [DailyCheckIn]
+    @State private var showTrain = false
 
     private var result: PillarScoreResult? { PillarScoringEngine.result(from: checkIns) }
 
@@ -24,6 +25,7 @@ struct RestoreHomeView: View {
                                          message: "Check in and Pillars will suggest a few small, restoring actions.")
                     }
 
+                    bodyModeCard
                     SavedRitualsSection()
                     CompletedRestorationsSection()
                     ritualsLibraryLink
@@ -37,7 +39,36 @@ struct RestoreHomeView: View {
             .scrollIndicators(.hidden)
             .pillarsBackground()
             .toolbar(.hidden, for: .navigationBar)
+            .fullScreenCover(isPresented: $showTrain) { TrainModeView() }
         }
+    }
+
+    /// Training as a Body restoration — a workout matched to today's recovery.
+    private var bodyModeCard: some View {
+        Button { showTrain = true } label: {
+            PillarGlassCard(padding: PillarsSpacing.m) {
+                HStack(spacing: PillarsSpacing.m) {
+                    Image(systemName: "figure.strengthtraining.traditional")
+                        .font(.system(size: 18, weight: .medium))
+                        .foregroundStyle(PillarsColors.gold)
+                        .frame(width: 40, height: 40)
+                        .background(Circle().fill(PillarsColors.gold.opacity(0.12)))
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Body Mode")
+                            .font(PillarsTypography.headline)
+                            .foregroundStyle(PillarsColors.primaryText)
+                        Text("A workout, matched to today's recovery")
+                            .font(PillarsTypography.caption)
+                            .foregroundStyle(PillarsColors.secondaryText)
+                    }
+                    Spacer(minLength: 0)
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(PillarsColors.tertiaryText)
+                }
+            }
+        }
+        .buttonStyle(PressableButtonStyle())
     }
 
     private var header: some View {

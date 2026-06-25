@@ -96,6 +96,7 @@ jobs:
           shoot 17_paywall        "--uitest --route paywall"
           shoot 18_settings       "--uitest --screen settings"
           shoot 19_devices        "--uitest --route devices"
+          shoot 20_body_mode      "--uitest --route trainmode"
           ls -la screenshots
 
       - name: Upload artifacts
